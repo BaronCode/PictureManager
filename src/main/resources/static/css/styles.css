@@ -1,0 +1,38 @@
+*{
+    padding:0;
+    margin:0;
+    box-sizing:border-box;
+}
+:root{
+    --ligthorange:#ffdbb6;
+    --darkorange:#fe7f00;
+}
+
+.bg-dark-orange {
+    background-color: #fe7f00;
+}
+.bg-light-orange {
+    background-color: #ffdbb6;
+}
+
+.w-0 {
+    width: 0;
+}
+.w-25 {
+    width: 25%;
+}
+.w-50 {
+    width: 50%;
+}
+.w-75 {
+    width: 75%;
+}
+.w-100 {
+    width: 100%;
+}
+.m-0 {
+    margin: 0;
+}
+.p-2 {
+    padding: 2%;
+}
