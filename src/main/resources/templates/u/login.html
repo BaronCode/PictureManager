@@ -16,22 +16,21 @@
         <nav class="">
 
         </nav>
-        <div id="login-screen" class="container rounded-3">
-            <div class="form_container log_in">
+        <div id="login-screen" class="login-container m-a mt-10 f rounded-3">
+            <div class="w-100 m-a">
                 <div>
-
-                    <form th:action="@{/auth/registration}" method="POST">
+                    <form th:action="@{/u/login}" method="POST">
                         <h1>PicMan Login</h1>
                         <p>Usa le credenziali fornite per eseguire il login</p>
-                        <p>Se non hai le credenziali, richiedile qui</p>
 
-                        <label>
-                            <input type="email" name="email" th:name="email" placeholder="mariorossi@organization.org">
-                        </label>
-                        <label>
-                            <input type="password" name="password" th:name="password" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;&middot;&middot;">
-                        </label>
+                        <label for="login-email"></label>
+                        <input type="email" name="email" id="login-email" th:name="email" placeholder="mariorossi@organization.org">
+                        <div class="p-2"></div>
+                        <label for="login-password"></label>
+                        <input type="password" name="password" id="login-password" th:name="password" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;&middot;&middot;">
+                        <button type="submit">LOGIN</button>
                     </form>
+                    <p>Se non hai le credenziali, richiedile <a href="">qui</a></p>
                 </div>
             </div>
         </div>

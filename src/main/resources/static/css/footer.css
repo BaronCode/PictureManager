@@ -1,36 +1,12 @@
-@import "styles.css";
-
-.f {
-    display: flex;
-}
-
-.tw {
-    color: white;
-}
-
-.ts {
-    text-align: start;
-}
-.te {
-    text-align: end;
-}
-.ffr {
-    display: flex;
-    flex-direction: row;
-}
-.jca {
-    justify-content: space-around;
-}
-.jcc {
-    justify-content: center;
-}
-.aic {
-    align-items: center;
-}
 .fl {
     text-decoration: none;
     color: white;
 }
 .fl:hover {
     text-decoration: underline;
+}
+#footer {
+    margin-top: 5vh;
+    position: fixed;
+    bottom: 0;
 }

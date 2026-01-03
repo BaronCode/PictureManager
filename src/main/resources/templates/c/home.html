@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>PicMan Home</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Angelo">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+        <script>
+            $(document).ready(function() {
+                let h;
+                const time = new Date(Date.now()).getHours()
+                if (time < 18) {
+                    if (time < 12) {
+                        h = "Buongiorno"
+                    } else h = "Buon pomeriggio"
+                } else h = "Buonasera"
+
+                $('#time').text(h);
+            })
+            $(document).ready(function () {
+                const hgt = $('#header').css('height')
+                console.log(hgt)
+                $('#hrepdiv').css('height', hgt)
+                //$(':root').get(0).style.setProperty("--translate", (eval(hgt.substring(0,hgt.indexOf('p')))/2).toString());
+            })
+            /*
+            let isAtTop = true;
+            function scrlwlc(st) {
+                if (st === 0) {
+                    $('#wlc-scroll')
+                            .removeClass('z-3')
+                            .removeClass('bg-transparent')
+                            .removeClass('wlc-tr-u')
+                            .removeClass('tbr')
+                            .removeClass('title')
+                            .addClass('bg-dark-orange')
+                    isAtTop = true;
+                }
+
+                // Detect scroll down from the top
+                if (isAtTop && st > 0) {
+                    $('#wlc-scroll')
+                            .addClass('z-3')
+                            .addClass('bg-transparent')
+                            .addClass('wlc-tr-u')
+                            .addClass('tbr')
+                            .addClass('title')
+                            .removeClass('bg-dark-orange')
+
+                    isAtTop = false; // prevent triggering again until back at top
+                }
+            }
+
+            $(window).on('scroll', function () {
+                let st = $(this).scrollTop();
+                scrlwlc(st)
+
+            });
+            */
+        </script>
+    </head>
+    <body>
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/header :: header}"></div>
+            <div id="hrepdiv" class="bg-transparent"></div>
+        </div>
+            <!--
+            <div class="tc tw wlc-tr p-5 w-100 pfxd" id="wlc-scroll">
+                <h2><span id="time"></span>, <span th:text="${name}"></span>!</h2>
+            </div>
+            -->
+        <main class="mt-10 mb-10 p-s-2 w-100">
+            <div class="tc tb w-100">
+                <h2><span id="time"></span>, <span th:text="${name}"></span>!</h2>
+            </div>
+            <div class="tb w-75 b-r-c-3 m-a mt-10">
+                <div class="p-2">
+                    <h3 class="tc tb w-100">Il mio profilo</h3>
+                    <div class="w-100 ffr">
+
+                        <div class="w-50 p-2" style="padding-right: 0 !important;">
+                            <div class="ffc w-100">
+                                <p class="p-2">Nome utente</p>
+                                <hr>
+                                <p class="p-2">ID utente</p>
+                                <hr>
+                                <p class="p-2">Email</p>
+                                <hr>
+                                <p class="p-2">Organizzazione</p>
+                                <hr>
+                                <p class="p-2">Permessi</p>
+                            </div>
+                        </div>
+                        <div class="w-50 p-2" style="padding-left: 0 !important;">
+                            <div class="ffc w-100 te">
+                                <p class="p-2" th:text="${name}"></p>
+                                <hr>
+                                <p class="p-2" th:text="${uuid}"></p>
+                                <hr>
+                                <p class="p-2" th:text="${email}"></p>
+                                <hr>
+                                <p class="p-2" th:text="${org}"></p>
+                                <hr>
+                                <p class="p-2">
+                                    <span th:each="pr, l: ${privileges}">
+                                        <span th:text="${pr}" th:style="${l.first}?'text-transform:capitalize;'"></span><span th:if="${!l.last}">, </span>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tw w-75 ffr jca m-a mt-5">
+                <button class="w-100"><h3>Dashboard</h3></button>
+            </div>
+            </main>
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+    </body>
+</html>

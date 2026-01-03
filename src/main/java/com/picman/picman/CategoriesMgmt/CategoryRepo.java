@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-@Repository
+import org.springframework.data.relational.core.mapping.Table;
+
+@Repository @Table
 public interface CategoryRepo extends JpaRepository<Category, Integer> {
 
     @Query("select c from Category c where c.name = ?1")

@@ -5,14 +5,148 @@
         <meta charset="utf-8">
         <meta name="author" content="Angelo">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+        <script th:inline="javascript">
+            const cats = [[${categories}]]
+
+            $(document).ready(function () {
+                const hgt = $('#header').css('height')
+                console.log(hgt)
+                $('#hrepdiv').css('height', hgt)
+            })
+
+        </script>
+        <script>
+            $(document).ready(function () {
+                const res = $('#categories-results')
+                const $input = $('input#categories-input')
+                let tags = []
+
+                function updateHidden() {
+                    $('input#hidden-categories-input').val(tags.join(','))
+                }
+
+                function checkValidAndAppend(text) {
+                    const yieldedText = cats.filter(i=>i.toLowerCase().includes(text))
+                    if (yieldedText.length===1 && !tags.includes(yieldedText[0])) {
+                        tags.push(yieldedText[0])
+                        return yieldedText[0]
+                    }
+                }
+
+                function createTag(text) {
+                    if (!text) return;
+                    const res = checkValidAndAppend(text)
+
+                    if (!res) return;
+
+                    let $tag = $('<span class="tag"></span>').text(res);
+                    $tag.on('click', function () {
+                        // remove tag on click
+                        tags = tags.filter(t => t !== res);
+                        $tag.remove();
+                        updateHidden();
+                    });
+
+                    $tag.insertAfter($('#tagsDivBegin'))
+                    updateHidden()
+                    $input.val('')
+                    $input.focus()
+                }
+
+                function enterOrBackspace($input, e) {
+                    if (e.key === 'Tab' || e.key === ',') {
+                        e.preventDefault()
+                        const v = $input.val().trim();
+                        createTag(v)
+                    } else if (e.key === 'Backspace' && $input.val() === '') {
+                        const $lastTag = $('#tagsDiv').find('span.tag').last();
+                        if ($lastTag.length) {
+                            tags.pop()
+                            $lastTag.remove()
+                            updateHidden()
+                        }
+                    } else if (e.key === 'Enter' && $input.val() === '') {
+                        if (tags.length !== 0) {
+                            $('#tagsForm').submit()
+
+                        }
+                    }
+                }
+
+                $input.keydown(function (e) {
+                    if ($(this).val().length>1) {
+                        res.removeClass("vhdn")
+                    }
+                    enterOrBackspace($(this), e)
+                })
+
+                $input.keyup(function () {
+                    const inputval = $(this).val()
+                    res.empty()
+                    if (inputval.length > 1) {
+                        res.removeClass("vhdn")
+                        let filter = cats.filter(i => i.toLowerCase().includes(inputval.toLowerCase()))
+                        filter = filter.filter(i => !tags.includes(i))
+                        if (filter.length===0) {
+                            res.append('<p class="no-result">Nessun risultato</p>')
+                        } else {
+                            filter.forEach(f => {res.append('<p class="result" tabindex="' + (filter.indexOf(f)+1) + '">' + f + '</p>')})
+                            $("p.result[tabindex='1']").attr("autofocus", "true")
+                            // For future implementation of result navigability
+                        }
+                    } else {
+                        res.addClass("vhdn")
+                        $(this).removeClass('p-b-0')
+                    }
+
+                })
+                $('div').on('click', '> p.result', function () {
+                    $input.val($(this).text())
+                    res.empty()
+                    enterOrBackspace($input, {
+                        key: 'Tab', preventDefault: () => {
+                        }
+                    })
+                    $input.empty()
+                    res.addClass("vhdn")
+                })
+            })
+
+
+
+        </script>
     </head>
     <body>
-        <nav class="">
-
-        </nav>
-
-        <!--<div th:replace="fragments/footer :: footer"></div>-->
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/header :: header}"></div>
+            <div id="hrepdiv" class="bg-transparent"></div>
+        </div>
+        <main class="mt-10 mb-10 p-s-2 w-100 bg-light-orange">
+            <div class="tb w-75 m-a mt-10">
+                <div class="w-100 p-2 z-3" id="search">
+                    <div id="tagsDiv" class="p-s-1"><i id="tagsDivBegin"></i></div>
+                    <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
+                    <form id="tagsForm" th:action="@{/c/dashboard/submitSearchQuery}" method="get" class="vhdn">
+                        <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
+                    </form>
+                    <div id="categories-results" class="w-100 vhdn p-b-0"></div>
+                </div>
+                </div>
+            <div class="tb g-5 w-75 b-r-c-3 m-a mt-10 p-2">
+                <div th:each="ph: ${last}" class="picdiv ffc">
+                    <img th:src="|${defaultPath}${ph.getPath()}|" th:alt="${ph.getId()}" class="w-100">
+                    <button><i class="fa fa-eye tw"></i></button>
+                </div>
+            </div>
+        </main>
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
     </body>
 </html>

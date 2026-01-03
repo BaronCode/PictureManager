@@ -21,9 +21,8 @@ public class UserDetailsService implements org.springframework.security.core.use
         userService = us;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User u = userService.findByEmail(username);
+    private UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
+        User u = userService.findByEmail(email);
         List<Character> userPrivileges = u.getPrivileges().stream().toList();
 
         Collection<SimpleGrantedAuthority> authorities = userPrivileges.stream()
@@ -35,5 +34,10 @@ public class UserDetailsService implements org.springframework.security.core.use
                 u.getPassword(),
                 authorities
         );
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return loadUserByEmail(username);
     }
 }

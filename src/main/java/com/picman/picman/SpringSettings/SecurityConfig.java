@@ -45,8 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/u/**", "/css/**", "/js/**", "/bootstrap/**", "/imgs/**", "/scss/**").permitAll()
                         .requestMatchers("/c/admin/dashboard").hasAnyAuthority("o")
-                        .requestMatchers("/c/dashboard", "/c/actions/**").hasAnyAuthority("o", "u", "w", "d", "r")
-                        .requestMatchers( "/c/actions/**").hasAnyAuthority("o", "u", "w", "d")
+                        //.requestMatchers("/c/dashboard", "/c/actions/**").hasAnyAuthority("o", "u", "w", "d", "r")
+                        //.requestMatchers( "/c/actions/**").hasAnyAuthority("o", "u", "w", "d")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -79,7 +79,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8005"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8088"));
         configuration.setAllowedMethods(List.of("GET", "POST"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization"));

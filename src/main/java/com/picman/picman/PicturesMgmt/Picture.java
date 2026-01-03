@@ -14,13 +14,13 @@ import java.time.LocalDateTime;
 public class Picture {
     @Id @NotNull @GeneratedValue(strategy = GenerationType.IDENTITY)                private     long                id;
     @NotNull @Column(nullable = false, length = 255, unique = true)                                                                       private     String              path;
-    @NotNull @Column(nullable = false)                                                                       private     LocalDateTime       dateAdded;
+    @NotNull @Column(nullable = false)                                                                       private     LocalDateTime       dateadded;
     @NotNull @Column(nullable = false)                                                                       private     boolean             protection;
 
     @PrePersist
     public void prePersist() {
-        if (dateAdded == null) {
-            dateAdded = LocalDateTime.now();
+        if (dateadded == null) {
+            dateadded = LocalDateTime.now();
         }
     }
 }

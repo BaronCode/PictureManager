@@ -1,0 +1,13 @@
+:root {
+    --translate: 0;
+}
+
+#header {
+    position: fixed;
+}
+.wlc-tr {
+    transition: all 2s;
+}
+.wlc-tr-u {
+    transform: translateY(calc(var(--translate) * -2px));
+}
