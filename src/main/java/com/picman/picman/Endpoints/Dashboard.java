@@ -1,7 +1,11 @@
 package com.picman.picman.Endpoints;
 
+import com.picman.picman.AssignationMgmt.Assignation;
+import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
 import com.picman.picman.CategoriesMgmt.Category;
+import com.picman.picman.CategoriesMgmt.CategoryService;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
+import com.picman.picman.PicturesMgmt.Picture;
 import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringSettings.PicmanSettings;
@@ -16,9 +20,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Controller
@@ -28,13 +30,15 @@ public class Dashboard {
     private final UserServiceImplementation userService;
     private final PictureServiceImplementation pictureService;
     private final CategoryServiceImplementation categoryService;
+    private final AssignationServiceImplementation assignationService;
     private final JwtService jwtService;
     private final PicmanSettings picmanSettings;
 
-    public Dashboard(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, JwtService js) {
+    public Dashboard(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, AssignationServiceImplementation asi, JwtService js) {
         userService = usi;
         pictureService = psi;
         categoryService = csi;
+        assignationService = asi;
         jwtService = js;
         picmanSettings = new PicmanSettings();
         logger = LoggerFactory.getLogger(Home.class);
@@ -57,11 +61,23 @@ public class Dashboard {
     @RequestMapping("/dashboard/submitSearchQuery")
     public String searchQuery(@CookieValue(name = "jwt", required = false) String jwt,
                               @RequestParam("hidden-tags") String tags,
-                              Model model) {
-        Set<String> tagsArray = new HashSet<>(Arrays.stream(tags.split(",")).toList());
+                              Model model) throws PicmanSettings.InvalidTagsResearchException {
+        final String[] splitTags = tags.split(",");
+        Set<String> tagsArray = new HashSet<>(Arrays.stream(splitTags).toList());
         categoryService.findAll().forEach(i -> tagsArray.removeIf(j -> tagsArray.contains(i.getName())));
-        logger.info(tagsArray.toString());
-        return "c/dashboard";
+
+        int[] categoryIds = new int[splitTags.length];
+        for (int i = 0; i < splitTags.length; i++) {
+            categoryIds[i] = categoryService.findByName(splitTags[i]).getId();
+        }
+
+        if (tagsArray.isEmpty()) {
+            List<Picture> assignations = assignationService.getAssignationsByCategoryList(categoryIds);
+            model.addAttribute("path", "/ search result");
+            return "c/research";
+        } else {
+            throw new PicmanSettings.InvalidTagsResearchException("Tried to parse unrecognized tag(s): '" + tagsArray + "'");
+        }
     }
 }
 

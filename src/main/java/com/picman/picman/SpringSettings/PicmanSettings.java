@@ -4,10 +4,7 @@ import lombok.Getter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -57,6 +54,11 @@ public final class PicmanSettings {
     }
     public static class PicmanSettingsDiscrepancyException extends IllegalStateException {
         public PicmanSettingsDiscrepancyException(String cause) {
+            super(cause);
+        }
+    }
+    public static class InvalidTagsResearchException extends NoSuchFieldException {
+        public InvalidTagsResearchException(String cause) {
             super(cause);
         }
     }
