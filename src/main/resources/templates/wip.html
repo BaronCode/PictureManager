@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Ooops!</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Angelo">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+
+    </head>
+    <body>
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/header :: header}"></div>
+            <div id="hrepdiv"></div>
+        </div>
+        <main class="mt-10 mb-10 p-s-2 w-100 bg-light-orange">
+            <div class="tb ffr jcc">
+                <div class="ffc jcc">
+                    <h1>This page is under construction!</h1>
+                    <div class="mt-5" style="font-weight: normal">
+
+                        <h3>
+                            <i>/uma'rɛl/ n; pl.</i> Umarells. <br>
+                        </h3>
+                        <h3 class="mt-5">
+                            People in a community who offer all sorts of comments to those <br>
+                            who are trying to get some work done, but who are <br>
+                            not doing any work themselves. <br>
+                            <br>
+                            "Umarells" are those people, usually retired men, who spend time <br>
+                            watching construction works, often holding their hands behind their <br>
+                            back, occasionally commenting on what is going on, <br>
+                            sometimes trying to tell the workers what to do. <br>
+                        </h3>
+                        <h3 class="mt-5">
+                            <i>"Everybody's telling me how I should organize the concert and nobody lifts a finger."</i><br>
+                            <i>"Yup, they are all umarells"</i>
+                        </h3>
+                    </div>
+
+                </div>
+                <img th:src="@{/imgs/under-construction.png}" alt="under-construction">
+            </div>
+
+        </main>
+        <div class="bg-dark-orange">
+            <!--<div id="frepdiv"></div>-->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+        <!--
+        <script>
+            $(document).ready(function () {
+                const hhgt = $('#header').css('height')
+                const fhgt = $('#footer').css('height')
+                $('#hrepdiv').css('height', hhgt)
+                $('#frepdiv').css('height', fhgt)
+            })
+        </script>
+        -->
+    </body>
+</html>

@@ -1,5 +1,6 @@
 package com.picman.picman.Endpoints;
 
+import com.picman.picman.Exceptions.PicmanSettingsDiscrepancyException;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringAuthentication.LoginResponse;
 import com.picman.picman.SpringAuthentication.UserDetailsService;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,22 +50,17 @@ public class Login {
     )
     {
         logger.info("New login request received");
-        UserDetails details = userDetailsService.loadUserByUsername(email);
-        logger.info("User {} tried to login with password {}", details.getUsername(), details.getPassword());
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, psw)
+            );
+            logger.info("Login successful");
 
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, psw)
-        );
-        logger.info("Authenticated: {}", auth.isAuthenticated());
-        if (auth.isAuthenticated()) {
-            logger.info("User {} successfully logged in with password {}. User has authority {}", email, psw, Arrays.toString(details.getAuthorities().toArray()));
             String token = jwtService.generateToken(auth.getName(), auth.getAuthorities());
+
             if (!userServiceImplementation.findByEmail(jwtService.extractUserMail(token)).getOrganization().equals(picmanSettings.getDefaultOrganizationName())) {
-                throw new PicmanSettings.PicmanSettingsDiscrepancyException("Database organization entry does not match with internal settings");
+                throw new PicmanSettingsDiscrepancyException("Database organization entry does not match with internal settings");
             }
-            LoginResponse loginResponse = new LoginResponse();
-            loginResponse.setToken(token);
-            loginResponse.setExpiration(String.valueOf(jwtService.getJwtExpiration()));
 
             ResponseCookie cookie = ResponseCookie.from("jwt", token)
                     .httpOnly(true)
@@ -74,15 +71,11 @@ public class Login {
                     .build();
 
             return ResponseEntity.ok()
-                    .headers(buildHeader(token))
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(loginResponse);
-        } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
-    private HttpHeaders buildHeader(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        return headers;
+                    .body(new LoginResponse(token, jwtService.getJwtExpiration()));
+        } catch (AuthenticationException e) {
+            logger.info("Login unsuccessful");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong email or password");
+        }
     }
 }

@@ -1,18 +1,24 @@
 package com.picman.picman.SpringSettings;
 
+import com.picman.picman.Exceptions.InvalidPicmanSettingException;
+import com.picman.picman.Exceptions.PicmanSettingsNotFoundException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Getter
+@Getter @Slf4j
 public final class PicmanSettings {
     private String defaultFileOutput;
     private String defaultOrganizationName;
     private int superAdminID;
     private Set<Integer> technicalUsersIDs;
+    private Logger logger = LoggerFactory.getLogger(PicmanSettings.class);
 
     public PicmanSettings() {
         parseSettings();
@@ -29,7 +35,14 @@ public final class PicmanSettings {
                     if (line.startsWith("%")) {
                         String[] opclass = line.substring(1).split("=");
                         switch (opclass[0]) {
-                            case "defaultFileOutput" -> defaultFileOutput = opclass[1];
+                            case "defaultFileOutput" -> {
+                                defaultFileOutput = opclass[1];
+                                File dfa = new File(defaultFileOutput);
+                                if (!dfa.isDirectory() || !dfa.exists()) {
+                                    logger.error("[FATAL] Default file output folder {} does not exist!", defaultFileOutput);
+                                    throw new InvalidPicmanSettingException("[FATAL] Default file output folder " + defaultFileOutput + " does not exist!");
+                                }
+                            }
                             case "organizationName" -> defaultOrganizationName = opclass[1];
                             case "superAdminID" -> superAdminID = Integer.parseInt(opclass[1]);
                             case "registeredSupportIDs" -> {
@@ -43,23 +56,7 @@ public final class PicmanSettings {
                 }
             }
         } catch (FileNotFoundException fnf) {
-            System.out.println(fnf.getMessage());
-        }
-    }
-
-    public static class InvalidPicmanSettingException extends RuntimeException {
-        public InvalidPicmanSettingException(String cause) {
-            super(cause);
-        }
-    }
-    public static class PicmanSettingsDiscrepancyException extends IllegalStateException {
-        public PicmanSettingsDiscrepancyException(String cause) {
-            super(cause);
-        }
-    }
-    public static class InvalidTagsResearchException extends NoSuchFieldException {
-        public InvalidTagsResearchException(String cause) {
-            super(cause);
+            throw new PicmanSettingsNotFoundException("File picmansettings.pman not found!");
         }
     }
 }

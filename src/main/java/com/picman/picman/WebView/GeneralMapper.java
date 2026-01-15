@@ -2,6 +2,7 @@ package com.picman.picman.WebView;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -9,8 +10,15 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/")
 @Controller
 public class GeneralMapper {
-    @RequestMapping(value = {"/", "/login"})
-    public RedirectView login() {
-        return new RedirectView("/u/login");
+    @RequestMapping(value = {"/", "/login", "/u/"})
+    public String login(Model model) {
+        model.addAttribute("path", "/ login");
+        return "u/login";
+    }
+
+    @RequestMapping(value = {"/404", "/wip"})
+    public String wip(Model model) {
+        model.addAttribute("path", "/ work in progress");
+        return "/wip";
     }
 }

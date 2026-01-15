@@ -4,6 +4,13 @@
 
 #header {
     position: fixed;
+    height: 10vh;
+}
+#header>div {
+    height: inherit;
+}
+#hrepdiv {
+    height: 10vh;
 }
 .wlc-tr {
     transition: all 2s;

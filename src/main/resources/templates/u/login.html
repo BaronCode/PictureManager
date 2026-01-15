@@ -5,20 +5,20 @@
         <meta charset="utf-8">
         <meta name="author" content="Angelo">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" th:href="@{/css/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
         <link rel="stylesheet" th:href="@{/css/login.css}">
         <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
         <!--<link rel="stylesheet" th:href="@{/bootstrap/dist/css/bootstrap.min.css}">-->
 
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     </head>
     <body class="bg-light-orange">
-        <nav class="">
-
-        </nav>
+        <div th:replace="~{fragments/header :: header}"></div>
+        <div id="hrepdiv"></div>
         <div id="login-screen" class="login-container m-a mt-10 f rounded-3">
             <div class="w-100 m-a">
-                <div>
+                <div class="tw">
                     <form th:action="@{/u/login}" method="POST">
                         <h1>PicMan Login</h1>
                         <p>Usa le credenziali fornite per eseguire il login</p>
@@ -28,7 +28,7 @@
                         <div class="p-2"></div>
                         <label for="login-password"></label>
                         <input type="password" name="password" id="login-password" th:name="password" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;&middot;&middot;">
-                        <button type="submit">LOGIN</button>
+                        <button type="submit" class="w-100 mt-5">LOGIN</button>
                     </form>
                     <p>Se non hai le credenziali, richiedile <a href="">qui</a></p>
                 </div>

@@ -10,14 +10,16 @@
         <link rel="stylesheet" th:href="@{/css/header.css}">
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css">
 
         <script th:inline="javascript">
             const cats = [[${categories}]]
 
             $(document).ready(function () {
-                const hgt = $('#header').css('height')
-                console.log(hgt)
-                $('#hrepdiv').css('height', hgt)
+                const hhgt = $('#header').css('height')
+                const fhgt = $('#footer').css('height')
+                //$('#hrepdiv').css('height', hhgt)
+                $('#frepdiv').css('height', fhgt)
             })
 
         </script>
@@ -118,7 +120,24 @@
                 })
             })
 
+            $(document).ready(function () {
+                const size = $(".ph-controls button").length/$(".picdiv").length
+                $(".ph-controls").addClass("g-"+size)
+            })
 
+            $(document).ready(function () {
+                $(".ph-controls button").hover(
+                    function () {
+                        const parent = $(this).parent()
+                        $("#"+ parent.attr("id") + " button").addClass("tdo")
+                        $(this).removeClass("tdo")
+                    },
+                    function () {
+                        const parent = $(this).parent()
+                        $("#"+ parent.attr("id") + " button").removeClass("tdo")
+                    }
+                )
+            })
 
         </script>
     </head>
@@ -140,13 +159,45 @@
                 </div>
             <div class="tb g-5 w-75 b-r-c-3 m-a mt-10 p-2">
                 <div th:each="ph: ${last}" class="picdiv ffc">
-                    <img th:src="|${defaultPath}${ph.getPath()}|" th:alt="${ph.getId()}" class="w-100">
-                    <button><i class="fa fa-eye tw"></i></button>
+                    <img th:src="|${defaultPath}${ph.getPath()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
+
+                    <div class="ph-controls" th:id="|controls-${ph.getId()}|">
+                        <button class="crs-p t-all-2s" th:data-src="|${defaultPath}${ph.getPath()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
+                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/c/i/edit?pic-id=' + ${ph.getId()} + '`'" th:if="${o || w || s}"><i class="fa fa-pencil"></i></button>
+                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/c/i/delete?pic-id=' + ${ph.getId()} + '`'" th:if="${o || d || s}"><i class="fa fa-trash"></i></button>
+                        <button class="crs-p t-all-2s" th:if="${o || w || d || r || s}"><a th:href="|${defaultPath}${ph.getPath()}|" download=""><i class="fa fa-download"></i></a></button>
+                    </div>
+
                 </div>
             </div>
         </main>
         <div class="bg-dark-orange">
+            <div id="frepdiv" class="bg-transparent"></div>
             <div th:replace="~{fragments/footer :: footer}"></div>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
+        <script>
+            Fancybox.bind("[data-fancybox]", {
+                Carousel: {
+                    Toolbar: {
+                        display: {
+                            left: ["counter"],
+                            middle: [
+                                "zoomIn",
+                                "zoomOut",
+                                //"toggle1to1",
+                                //"rotateCCW",
+                                //"rotateCW",
+                                //"flipX",
+                                //"flipY",
+                                //"reset",
+                            ],
+                            right: ["autoplay", "thumbs", "close"],
+                        },
+                    },
+                },
+            });
+        </script>
     </body>
 </html>

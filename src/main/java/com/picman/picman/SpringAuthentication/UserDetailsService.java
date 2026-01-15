@@ -23,6 +23,11 @@ public class UserDetailsService implements org.springframework.security.core.use
 
     private UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
         User u = userService.findByEmail(email);
+
+        if (u == null) {
+            throw new UsernameNotFoundException("Cannot find user " + email);
+        }
+
         List<Character> userPrivileges = u.getPrivileges().stream().toList();
 
         Collection<SimpleGrantedAuthority> authorities = userPrivileges.stream()

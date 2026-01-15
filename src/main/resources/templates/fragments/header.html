@@ -4,12 +4,12 @@
 
         <div th:fragment="header" class="w-100" id="header">
             <div class="p-2 w-100 ffr bg-dark-orange aic">
-                <div class="w-25 ts">
+                <div class="w-50 ts">
                     <span class="m-0 tw tbr title"><b>PicMan</b></span><!--/*@thymesVar id="path" type="java"*/-->
                     <span class="m-0 tw tbr path">&nbsp;</span>
                     <span class="m-0 tw tbr path" th:text="${path}"></span>
                 </div>
-                <div class="w-50"></div>
+                <div class="w-25"></div>
                 <div class="w-25 te tw">
                     <i class="fa-solid fa-house ichl" th:onclick="|window.location.href='/c/home'|"></i> <!--Home-->
                     <i class="fa-solid fa-image ichl" th:onclick="|window.location.href='/c/dashboard'|"></i> <!--Dashboard-->

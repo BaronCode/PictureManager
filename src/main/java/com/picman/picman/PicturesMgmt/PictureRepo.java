@@ -11,4 +11,5 @@ import java.util.List;
 public interface PictureRepo extends JpaRepository<Picture, Integer> {
     @Query("select p from Picture p order by p.dateadded limit 20")
     List<Picture> getLast20Added();
+
 }

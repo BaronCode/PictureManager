@@ -19,7 +19,10 @@ body{
 }
 
 p, span, h1, h2, h3, h4 {
-    //font-weight: bold;
+    font-weight: bold;
+}
+a, a:visited {
+    color: unset;
 }
 
 button {
@@ -99,6 +102,26 @@ button {
 .z-3 {
     z-index: 3;
 }
+.g-1 {
+    display: grid;
+    grid-template-columns: repeat(1, auto);
+    gap: 1vw;
+}
+.g-2 {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 1vw;
+}
+.g-3 {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 1vw;
+}
+.g-4 {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 1vw;
+}
 .g-5 {
     display: grid;
     grid-template-columns: repeat(5,auto);
@@ -137,6 +160,12 @@ button {
 }
 .tw {
     color: white;
+}
+.tdo {
+    color: var(--darkorange);
+}
+.t-all-2s {
+    transition: all .2s;
 }
 .tb {
     color: black;
@@ -184,6 +213,9 @@ button {
     visibility: hidden;
     display: none;
 }
+.crs-p:hover {
+    cursor: pointer;
+}
 #search {
     border: 2px solid var(--darkorange);
     border-radius: 2vw;
@@ -204,6 +236,9 @@ button {
 #categories-results > p {
     padding: 0.5% 1%;
 }
+.result {
+    font-weight: normal;
+}
 .result:hover {
     background-color: #AAA;
     cursor: pointer;
@@ -212,6 +247,7 @@ button {
     background-color: #AAA;
 }
 .no-result {
+    font-weight: normal;
     cursor: not-allowed !important;
 }
 
@@ -224,4 +260,24 @@ button {
     border-radius: 3px;
     display: inline-block;
     cursor: pointer;
+    font-weight: normal;
+}
+.ph-controls {
+    overflow: hidden;
+    gap: 0 !important;
+}
+.ph-controls button:last-child {
+    border-bottom-right-radius: 1vw !important;
+}
+.ph-controls button:first-child {
+    border-bottom-left-radius: 1vw !important;
+}
+.ph-controls button {
+    border: 0;
+    border-radius: 0;
+    padding: 7%;
+}
+img.result-picture {
+    aspect-ratio: 4/3;
+    object-fit: cover;
 }
