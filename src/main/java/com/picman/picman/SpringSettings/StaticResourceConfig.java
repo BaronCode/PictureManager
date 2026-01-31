@@ -9,7 +9,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         PicmanSettings ps = new PicmanSettings();
-        registry.addResourceHandler(ps.getDefaultFileOutput().concat("**"))
+        registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:".concat(ps.getDefaultFileOutput()));
     }
 }

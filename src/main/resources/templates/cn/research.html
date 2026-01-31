@@ -8,6 +8,7 @@
         <link rel="stylesheet" th:href="@{/css/styles.css}">
         <link rel="stylesheet" th:href="@{/css/footer.css}">
         <link rel="stylesheet" th:href="@{/css/header.css}">
+        <link rel="shortcut icon" th:href="@{/imgs/logo.png}" type="image/x-icon">
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
@@ -30,7 +31,7 @@
                 <div class="w-100 p-2 z-3" id="search">
                     <div id="tagsDiv" class="p-s-1"><i id="tagsDivBegin"></i></div>
                     <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
-                    <form id="tagsForm" th:action="@{/c/dashboard/submitSearchQuery}" method="get" class="vhdn">
+                    <form id="tagsForm" th:action="@{/templates/cn/dashboard/submitSearchQuery}" method="get" class="vhdn">
                         <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
                     </form>
                     <div id="categories-results" class="w-100 vhdn p-b-0"></div>
@@ -43,8 +44,6 @@
                 </div>
             </div>
         </main>
-        <div class="bg-dark-orange">
-            <div th:replace="~{fragments/footer :: footer}"></div>
-        </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
     </body>
 </html>

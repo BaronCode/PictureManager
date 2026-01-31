@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>PicMan PicturEdit</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Angelo">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
+        <link rel="shortcut icon" th:href="@{/imgs/logo.png}" type="image/x-icon">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css">
+
+    </head>
+    <body>
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/header :: header}"></div>
+            <div id="hrepdiv" class="bg-transparent"></div>
+        </div>
+        <main>
+            <div class="p-2 mt-5 w-100">
+                <div class="w-100 ffr">
+                    <div class="w-50">
+                        <a th:href="|/images/${pic.getPath()}.${pic.getExt()}|">
+                            <img data-fancybox="" style="height: 100%;" th:src="|/images/${pic.getPath()}.${pic.getExt()}|" th:alt="${pic.getId()}" class="w-100 result-picture">
+                        </a>
+                    </div>
+                    <div class="w-50 ffc p-s-2">
+                        <div class="w-100 tc"><p>PicMan image data</p></div>
+                        <div class="w-100 ffr mt-5">
+                            <div class="w-50 tb data">
+                                <p>Image ID</p>
+                                <p>Added on</p>
+                                <p>Protected</p>
+                            </div>
+                            <div class="w-50 tb te data">
+                                <p th:text="${pic.getId()}"></p>
+                                <p th:text="${pic.getFormattedDate(pic.getDateadded())}"></p>
+                                <p th:text="${pic.isProtection()}"></p>
+                            </div>
+                        </div>
+                        <hr style="margin: 2vh 0;">
+                        <div class="w-100 tc"><p>Image metadata</p></div>
+                        <div class="w-100 ffr mt-5">
+                            <div class="w-50 tb data">
+                                <p>Size</p>
+                                <p>Shot on</p>
+                                <p>Height</p>
+                                <p>Width</p>
+                                <p>Aperture</p>
+                                <p>Exposure time</p>
+                                <p>ISO speed</p>
+                                <p>Focal length</p>
+                                <p>Camera model</p>
+                            </div>
+                            <div class="w-50 tb te data">
+                                <p th:text="${pic.getSizekb() != null ? pic.getSizekb() + ' KB' : 'No data'}"></p>
+                                <p th:text="${pic.getFormattedDate(pic.getShotat()) ?: 'No data'}"></p>
+                                <p th:text="${pic.getHeight() != null ? pic.getHeight() + ' px' : 'No data'}"></p>
+                                <p th:text="${pic.getWidth() != null ? pic.getWidth() + ' px' : 'No data'}"></p>
+                                <p th:text="${pic.getAperture() ?: 'No data'}"></p>
+                                <p th:if="${pic.getExposureden()!=1}" th:text="${(pic.getExposurenum() != null && pic.getExposureden() != null) ? pic.getExposurenum()+'/'+pic.getExposureden()+'s' : 'No data'}"></p>
+                                <p th:unless="${pic.getExposureden()!=1}" th:text="${(pic.getExposurenum() != null && pic.getExposureden() != null) ? pic.getExposurenum()+'s' : 'No data'}"></p>
+                                <p th:text="${pic.getIso() ?: 'No data'}"></p>
+                                <p th:text="${pic.getFocallength() != null ? pic.getFocallength() + ' mm' : 'No data'}"></p>
+                                <p th:text="${pic.getCameramodel() ?: 'No data'}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr style="margin: 2vh 2vw;">
+            <div class="p-s-2 w-100">
+                <div class="w-100 tc"><p>Tags section</p></div>
+                <div class="w-100 ffc mt-5">
+                    <div class="w-100 ffr fw tw" >
+                        <div th:if="${pictureCategories.size()}!=0" th:each="pc, i: ${pictureCategories}" style="border-radius: 1vh !important;" class="ffr aic bg-dark-orange tag-edit b-r-c-3 m-s-1">
+                            <div class="w-75 aic f jcc h-100"><span th:text="${pc.getName()}"></span></div>
+                            <div class="w-25 f jcc"><i class="fa fa-trash"></i></div>
+                        </div>
+                        <div th:unless="${pictureCategories.size()}!=0" class="tb w-100 tc"><p>No tags for this picture</p></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <div th:replace="~{fragments/footer :: footer}"></div>
+
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
+        <script>
+            Fancybox.bind("[data-fancybox]", {
+                Carousel: {
+                    Toolbar: {
+                        display: {
+                            left: ["counter"],
+                            middle: [
+                                "zoomIn",
+                                "zoomOut",
+                                //"toggle1to1",
+                                //"rotateCCW",
+                                //"rotateCW",
+                                //"flipX",
+                                //"flipY",
+                                //"reset",
+                            ],
+                            right: ["autoplay", "thumbs", "close"],
+                        },
+                    },
+                },
+            });
+        </script>
+    </body>
+</html>

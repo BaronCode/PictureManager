@@ -1,5 +1,6 @@
 package com.picman.picman.AssignationMgmt;
 
+import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.PicturesMgmt.Picture;
 import org.springframework.stereotype.Service;
 
@@ -18,4 +19,10 @@ public class AssignationServiceImplementation implements AssignationService {
     public List<Picture> getAssignationsByCategoryList(int[] categories) {
         return assignationRepo.getAssignationsByCategoryList(categories);
     }
+
+    @Override
+    public List<Category> getCategoriesByPictureId(long id) {
+        return assignationRepo.getCategoriesByPictureId(id);
+    }
+
 }

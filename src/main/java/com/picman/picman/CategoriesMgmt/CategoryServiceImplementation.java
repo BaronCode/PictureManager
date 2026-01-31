@@ -1,5 +1,6 @@
 package com.picman.picman.CategoriesMgmt;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ public class CategoryServiceImplementation implements CategoryService {
 
     @Override
     public Category findById(Integer id) {
-        return categoryRepo.findById(id).orElse(null);
+        return categoryRepo.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public Category findByName(String name) {
@@ -36,5 +37,9 @@ public class CategoryServiceImplementation implements CategoryService {
     @Override
     public void deleteByName(String name) {
         categoryRepo.deleteByName(name);
+    }
+
+    public void updateCategory(Integer id, Category c) {
+        categoryRepo.updateCategory(id, c.getName(), c.getDescription());
     }
 }

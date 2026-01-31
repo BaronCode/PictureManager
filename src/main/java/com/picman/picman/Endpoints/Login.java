@@ -67,7 +67,7 @@ public class Login {
                     .secure(false)
                     .path("/")
                     .maxAge(jwtService.getJwtExpiration() / 1000)
-                    .sameSite("Strict")
+                    .sameSite("LaX")
                     .build();
 
             return ResponseEntity.ok()

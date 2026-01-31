@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Slf4j
@@ -14,6 +15,12 @@ public class GeneralMapper {
     public String login(Model model) {
         model.addAttribute("path", "/ login");
         return "u/login";
+    }
+
+    @RequestMapping(value = {"/c/i/upload", "/c/upload", "/upload"}, method = RequestMethod.GET)
+    public String upload(Model model) {
+        model.addAttribute("path", "/ upload");
+        return "c/i/upload";
     }
 
     @RequestMapping(value = {"/404", "/wip"})

@@ -19,4 +19,15 @@ public class Category {
     public String toString() {
         return "[" + id + "] " + name + " (" + description + ")";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Category c) {
+            return
+                    (this.name != null && c.name != null) &&
+                    (this.description != null && c.description != null) &&
+                    this.name.equals(c.name) && this.description.equals(c.description);
+        }
+        return false;
+    }
 }

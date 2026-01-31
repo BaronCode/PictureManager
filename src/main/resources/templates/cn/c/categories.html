@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>PicMan Categories</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Angelo">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
+        <link rel="shortcut icon" th:href="@{/imgs/logo.png}" type="image/x-icon">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css">
+
+        <script>
+            $(document).ready(function(){
+                const rows = $('#data tbody tr')
+                const rowsShown = 5;
+                const rowsTotal = rows.length;
+                const numPages = rowsTotal / rowsShown;
+                for(i = 0;i < numPages;i++) {
+                    let pageNum = i + 1;
+                    $('#tnav').append('<a class="table-pg-s ib b-1-do" href="#" rel="'+i+'">'+pageNum+'</a> ');
+                }
+
+
+                rows.hide();
+                rows.slice(0, rowsShown).show();
+                const fch = rows.slice(0, rowsShown)[rowsShown-1].children
+                $(fch[0]).addClass("td-lr-f");
+                $(fch[fch.length-1]).addClass("td-lr-l");
+                $('#tnav a:first').addClass('active');
+                $('#tnav a').bind('click', function(){
+
+                    $('#tnav a').removeClass('active');
+                    $(this).addClass('active');
+                    let currPage = $(this).attr('rel');
+                    let startItem = currPage * rowsShown;
+                    let endItem = startItem + rowsShown;
+                    const k = $(rows).css('opacity','0.0').hide().slice(startItem, endItem).css('display','table-row').animate({opacity:1}, 300);
+                    const ch = $(k).last().children()
+                    $(ch[0]).addClass("td-lr-f")
+                    $(ch[ch.length-1]).addClass("td-lr-l")
+
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/header :: header}"></div>
+            <div id="hrepdiv" class="bg-transparent"></div>
+        </div>
+        <main>
+            <div class="p-2 mt-5 w-100">
+                <div class="w-100 tc"><p>Categories</p></div>
+                <div class="w-100 ffc mt-2">
+                    <table id="data" class="tb b-1-do">
+                        <thead>
+                            <tr>
+                                <th class="th-fr-f b-1-do">&num;</th>
+                                <th class="b-1-do">Name</th>
+                                <th class="b-1-do">Description</th>
+                                <th class="th-fr-l b-1-do">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="cat: ${all}">
+                                <td class="b-1-do" th:text="${cat.getId()}"></td>
+                                <td class="b-1-do" th:text="${cat.getName()}"></td>
+                                <td class="b-1-do w-50" th:text="${cat.getDescription()}"></td>
+                                <td class="b-1-do">
+                                    <div class="w-100 f jce">
+                                        <button th:onclick="'window.location.href=`/cn/c/edit?cat-id=' + ${cat.getId()} + '`'" th:if="${o || w || s}" class="tw w-25"><i class="fa fa-pencil"></i></button>
+                                        <button th:onclick="'window.location.href=`/cn/c/delete?cat-id=' + ${cat.getId()} + '`'" th:if="${o || d || s}" class="tw w-25"><i class="fa fa-trash"></i></button>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div id="tnav" class="tw"></div>
+                </div>
+            </div>
+            <hr style="margin: 2vh 2vw">
+            <div class="p-2 w-100 tc">
+                <div class="w-100 tc"><p>Create a new category</p></div>
+                <form th:action="@{/cn/c/create}" method="post" class="w-100 ffc mt-2">
+                    <label>
+                        <input class="w-100 p-1 b-1-do b-r-1" name="name" th:name="name" type="text" maxlength="30" required placeholder="Category name">
+                    </label>
+                    <label>
+                        <textarea class="w-100 p-1 b-1-do b-r-1 mt-2" name="description" rows="3" placeholder="Category description (optional)"></textarea>
+                    </label>
+                    <button type="submit" class="w-100 p-1 mt-2">Create category</button>
+                </form>
+            </div>
+        </main>
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>

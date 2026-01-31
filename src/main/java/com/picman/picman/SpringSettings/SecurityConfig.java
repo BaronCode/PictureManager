@@ -43,11 +43,33 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/u/**", "/css/**", "/js/**", "/bootstrap/**", "/imgs/**", "/scss/**").permitAll()
-                        //.requestMatchers("/c/admin/dashboard").hasAnyAuthority("o")
-                        .requestMatchers("/c/dashboard", "/c/actions/**").hasAnyAuthority("o", "u", "w", "d", "r")
-                        //.requestMatchers( "/c/actions/**").hasAnyAuthority("o", "u", "w", "d")
-                        .anyRequest().permitAll()
+                        // PAY MUCH ATTENTION TO URLs
+
+                        // General mappings and resources
+                        .requestMatchers("/**", "/u/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/bootstrap/**", "/imgs/**").permitAll()
+
+                        // Content access
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/cn/**").permitAll()
+                        .requestMatchers("/cn/dashboard").permitAll()
+                        .requestMatchers("/cn/dashboard/submitSearchQuery").permitAll()
+                        .requestMatchers("/cn/home").authenticated()
+
+                        // Images management
+                        .requestMatchers( "/cn/i/edit", "/cn/i/upload").hasAnyAuthority("o", "w")
+                        .requestMatchers( "/cn/i/delete").hasAnyAuthority("o", "d")
+
+                        // Categories management
+                        .requestMatchers( "/cn/c/**").hasAnyAuthority("o", "w", "d")
+                        .requestMatchers( "/cn/c/create","/cn/c/edit").hasAnyAuthority("o", "w")
+                        .requestMatchers( "/cn/c/delete").hasAnyAuthority("o", "d")
+
+                        // Any
+                        .requestMatchers("/h2-console").hasAnyAuthority("o")
+
+                        // Deny any other request
+                        .anyRequest().denyAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
@@ -63,8 +85,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
-                                                         PasswordEncoder passwordEncoder) {
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);

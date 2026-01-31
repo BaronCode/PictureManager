@@ -8,6 +8,7 @@
         <link rel="stylesheet" th:href="@{/css/styles.css}">
         <link rel="stylesheet" th:href="@{/css/footer.css}">
         <link rel="stylesheet" th:href="@{/css/header.css}">
+        <link rel="shortcut icon" th:href="@{/imgs/logo.png}" type="image/x-icon">
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css">
@@ -151,7 +152,7 @@
                 <div class="w-100 p-2 z-3" id="search">
                     <div id="tagsDiv" class="p-s-1"><i id="tagsDivBegin"></i></div>
                     <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
-                    <form id="tagsForm" th:action="@{/c/dashboard/submitSearchQuery}" method="get" class="vhdn">
+                    <form id="tagsForm" th:action="@{/cn/dashboard/submitSearchQuery}" method="get" class="vhdn">
                         <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
                     </form>
                     <div id="categories-results" class="w-100 vhdn p-b-0"></div>
@@ -159,22 +160,19 @@
                 </div>
             <div class="tb g-5 w-75 b-r-c-3 m-a mt-10 p-2">
                 <div th:each="ph: ${last}" class="picdiv ffc">
-                    <img th:src="|${defaultPath}${ph.getPath()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
+                    <img th:src="|/images/${ph.getPath()}.${ph.getExt()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
 
                     <div class="ph-controls" th:id="|controls-${ph.getId()}|">
-                        <button class="crs-p t-all-2s" th:data-src="|${defaultPath}${ph.getPath()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
-                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/c/i/edit?pic-id=' + ${ph.getId()} + '`'" th:if="${o || w || s}"><i class="fa fa-pencil"></i></button>
-                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/c/i/delete?pic-id=' + ${ph.getId()} + '`'" th:if="${o || d || s}"><i class="fa fa-trash"></i></button>
-                        <button class="crs-p t-all-2s" th:if="${o || w || d || r || s}"><a th:href="|${defaultPath}${ph.getPath()}|" download=""><i class="fa fa-download"></i></a></button>
+                        <button class="crs-p t-all-2s" th:data-src="|/images/${ph.getPath()}.${ph.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
+                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/edit?pic-id=' + ${ph.getId()} + '`'" th:if="${o || w || s}"><i class="fa fa-pencil"></i></button>
+                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.getId()} + '`'" th:if="${o || d || s}"><i class="fa fa-trash"></i></button>
+                        <button class="crs-p t-all-2s" th:if="${o || w || d || r || s}"><a th:href="|/images/${ph.getPath()}.${ph.getExt()}|" download=""><i class="fa fa-download"></i></a></button>
                     </div>
 
                 </div>
             </div>
         </main>
-        <div class="bg-dark-orange">
-            <div id="frepdiv" class="bg-transparent"></div>
-            <div th:replace="~{fragments/footer :: footer}"></div>
-        </div>
+        <div th:replace="~{fragments/footer :: footer}"></div>
 
         <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
         <script>

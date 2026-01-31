@@ -6,15 +6,12 @@
     text-decoration: underline;
 }
 #footer {
-    margin-top: 5vh;
     height: 10vh;
     position: fixed;
     bottom: 0;
 }
-#footer > div {
-    height: inherit;
-}
 #frepdiv {
-    display: none;
+    margin-top: 5vh;
     height: 10vh;
+    background: transparent;
 }

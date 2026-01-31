@@ -40,7 +40,7 @@ public final class PicmanSettings {
                                 File dfa = new File(defaultFileOutput);
                                 if (!dfa.isDirectory() || !dfa.exists()) {
                                     logger.error("[FATAL] Default file output folder {} does not exist!", defaultFileOutput);
-                                    throw new InvalidPicmanSettingException("[FATAL] Default file output folder " + defaultFileOutput + " does not exist!");
+                                    //throw new InvalidPicmanSettingException("[FATAL] Default file output folder " + defaultFileOutput + " does not exist!");
                                 }
                             }
                             case "organizationName" -> defaultOrganizationName = opclass[1];

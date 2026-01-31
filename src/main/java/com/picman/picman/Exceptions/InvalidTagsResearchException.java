@@ -1,7 +1,7 @@
 package com.picman.picman.Exceptions;
 
 
-public class InvalidTagsResearchException extends NoSuchFieldException {
+public class InvalidTagsResearchException extends FieldNotFoundException {
     public InvalidTagsResearchException(String cause) {
         super(cause);
     }

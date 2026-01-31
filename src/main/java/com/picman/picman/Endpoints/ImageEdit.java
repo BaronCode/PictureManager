@@ -1,10 +1,15 @@
 package com.picman.picman.Endpoints;
 
 import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
+import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
-import com.picman.picman.Exceptions.NotImplementedException;
+import com.picman.picman.Exceptions.AccessDeniedException;
+import com.picman.picman.Exceptions.FieldNotFoundException;
+import com.picman.picman.Exceptions.ImageProcessingException;
 import com.picman.picman.PicturesMgmt.Picture;
+import com.picman.picman.PicturesMgmt.PictureBuilder;
 import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
+import com.picman.picman.Utilities.ZipEntryMultipartFile;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringSettings.PicmanSettings;
 import com.picman.picman.UserMgmt.User;
@@ -12,20 +17,26 @@ import com.picman.picman.UserMgmt.UserServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import static com.picman.picman.Utilities.Utilities.*;
 
 @Slf4j
 @Controller
-@RequestMapping("c/i/")
+@RequestMapping("cn/i/")
 public class ImageEdit {
     private final Logger logger;
     private final UserServiceImplementation userService;
@@ -42,38 +53,146 @@ public class ImageEdit {
         assignationService = asi;
         jwtService = js;
         picmanSettings = new PicmanSettings();
-        logger = LoggerFactory.getLogger(Home.class);
+        logger = LoggerFactory.getLogger(ImageEdit.class);
     }
 
-    @RequestMapping("/delete")
+    @GetMapping("/")
+    public String root() {
+        return "cn/dashboard";
+    }
+
+    @GetMapping("/delete")
     public String delete(
-            @CookieValue(name = "jwt", required = false) String jwt,
+            @CookieValue(name = "jwt") String jwt,
             @RequestParam("pic-id") int id
+    ) throws FieldNotFoundException {
+        String email = jwtService.extractUserMail(jwt);
+        User current = userService.findByEmail(email);
+        Set<Character> privileges = current.getPrivileges();
+
+        if (!checkPermissions(privileges, new char[]{'o', 'w', 's'})) {
+            logger.error("User {} tried to delete Picture {}", current.getId(), id);
+            throw new AccessDeniedException("Access denied: user has not enough privileges!");
+        }
+
+        Picture p = pictureService.getById(id);
+        if (p_nexists(p, id)) {
+            throw new FieldNotFoundException("Picture with id" + id + "does not exist!");
+        }
+
+        File pictureFile = new File(picmanSettings.getDefaultFileOutput() + p.getPath() + "." + p.getExt());
+        if (pictureFile.isFile() && pictureFile.delete()) {
+            if (p_deletable(p, privileges)) {
+                pictureService.deleteById(id);
+                logger.info("Deleted file {} and all matching database entries", p.getPath());
+            }
+        } else {
+            logger.warn("Something went wrong while deleting file {}", p.getPath());
+        }
+        return "cn/dashboard";
+    }
+    
+    @GetMapping( "/edit")
+    public String edit(
+            @CookieValue(name = "jwt") String jwt,
+            @RequestParam("pic-id") int id,
+            Model model
+    ) throws FieldNotFoundException {
+        String email = jwtService.extractUserMail(jwt);
+        User current = userService.findByEmail(email);
+        Set<Character> privileges = current.getPrivileges();
+
+        if (!checkPermissions(privileges, new char[]{'o', 's', 'w'})) {
+            throw new AccessDeniedException("Access denied: user has not enough privileges!");
+        }
+
+        Picture picture = pictureService.getById(id);
+        if (p_nexists(picture, id)) {
+            throw new FieldNotFoundException("Picture with id" + id + "does not exist!");
+        }
+
+        List<Category> pictureCat = assignationService.getCategoriesByPictureId(picture.getId());
+        List<Category> allCategories = categoryService.findAll();
+        PicmanSettings ps = new PicmanSettings();
+
+        model.addAttribute("pic", picture);
+        model.addAttribute("defaultPath", ps.getDefaultFileOutput());
+        model.addAttribute("pictureCategories", pictureCat);
+        model.addAttribute("all", allCategories);
+        model.addAttribute("path", "/ image edit");
+        return "cn/i/edit";
+    }
+
+    @PostMapping("/upload")
+    @ResponseBody
+    public Map<String, String> upload(
+            @CookieValue(name = "jwt") String jwt,
+            @RequestPart(value = "file") MultipartFile file,
+            Model model
     ) {
         String email = jwtService.extractUserMail(jwt);
         User current = userService.findByEmail(email);
         Set<Character> privileges = current.getPrivileges();
 
-        if (privileges.contains('o') || privileges.contains('s') || privileges.contains('d')) {
-            Picture p = pictureService.getById(id);
-            File pictureFile = new File(picmanSettings.getDefaultFileOutput() + p.getPath());
-            if (pictureFile.isFile() && pictureFile.delete()) {
-                pictureService.deleteById(id);
-                logger.info("Deleted file {} and all matching database entries", p.getPath());
+        if (!checkPermissions(privileges, new char[]{'o', 's', 'w'})) {
+            throw new AccessDeniedException("Access denied: user has not enough privileges!");
+        }
+
+        if (file.getOriginalFilename() != null && file.getOriginalFilename().endsWith(".zip")) {
+            List<MultipartFile> files = new ArrayList<>();
+            try (ZipInputStream zis = new ZipInputStream(file.getInputStream())) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    if (entry.isDirectory()) continue;
+
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = zis.read(buf)) > 0) {
+                        bos.write(buf, 0, len);
+                    }
+                    files.add(new ZipEntryMultipartFile(entry.getName(), bos.toByteArray()));
+                    zis.closeEntry();
+                }
+            } catch (IOException ioe) {
+                logger.error("Error while unwrapping zip file!");
             }
 
+            files.forEach(f->pictureService.addPicture(handleFile(f)));
+            return Map.of("redirect","/cn/dashboard");
         } else {
-            logger.error("User {} tried to delete Picture {}", current.getId(), id);
+            Picture p = handleFile(file);
+            if (p == null) {
+                throw new ImageProcessingException("An error happened while processing the image");
+            }
+
+            pictureService.addPicture(p);
+            return Map.of("redirect","/cn/i/edit?pic-id=".concat(String.valueOf(p.getId())));
         }
-        return "c/dashboard";
     }
 
-    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
-    @RequestMapping("/edit")
-    public String edit(
-            @CookieValue(name = "jwt", required = false) String jwt,
-            @RequestParam("pic-id") int id
-    ) {
-        throw new NotImplementedException("Function not yet implemented");
+
+    private Picture handleFile(MultipartFile file) {
+        try {
+            if (file.getOriginalFilename()==null) {
+                throw new ImageProcessingException("Original file has no name!");
+            }
+            File saved = new File(picmanSettings
+                    .getDefaultFileOutput()
+                    .concat(
+                            file
+                            .getOriginalFilename()
+                            .substring(
+                                file
+                                .getOriginalFilename()
+                                .lastIndexOf(File.separator)+1)));
+            file.transferTo(saved);
+            return PictureBuilder.buildByFile(saved, true);
+
+        } catch (IOException e) {
+            throw new ImageProcessingException("An error happened while transfering temporary image file");
+        }
     }
+
+
 }
