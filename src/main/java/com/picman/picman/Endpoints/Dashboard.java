@@ -1,11 +1,14 @@
 package com.picman.picman.Endpoints;
 
+import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
 import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
 import com.picman.picman.Exceptions.InvalidTagsResearchException;
+import com.picman.picman.PicturesMgmt.Picture;
 import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringSettings.PicmanSettings;
+import com.picman.picman.SpringSettings.Settings;
 import com.picman.picman.UserMgmt.User;
 import com.picman.picman.UserMgmt.UserServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
@@ -28,16 +31,16 @@ public class Dashboard {
     private final UserServiceImplementation userService;
     private final PictureServiceImplementation pictureService;
     private final CategoryServiceImplementation categoryService;
+    private final AssignationServiceImplementation assignationService;
     private final JwtService jwtService;
-    private final PicmanSettings picmanSettings;
     private final Logger logger = LoggerFactory.getLogger(Dashboard.class);
 
-    public Dashboard(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, JwtService js) {
+    public Dashboard(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, AssignationServiceImplementation asi, JwtService js) {
         userService = usi;
         pictureService = psi;
         categoryService = csi;
+        assignationService = asi;
         jwtService = js;
-        picmanSettings = new PicmanSettings();
     }
 
     @GetMapping("/")
@@ -91,7 +94,7 @@ public class Dashboard {
 
         model.addAttribute("categories", categoryService.findAll().stream().map(Category::getName).toList());
         model.addAttribute("path", "/ dashboard");
-        model.addAttribute("defaultPath", picmanSettings.getDefaultFileOutput());
+        model.addAttribute("defaultPath", Settings.get("output"));
         model.addAttribute("last", pictureService.getLast20Added());
         model.addAttribute("o", privileges.contains('o'));
         model.addAttribute("d", privileges.contains('d'));
@@ -104,11 +107,10 @@ public class Dashboard {
 
 
     @RequestMapping("/dashboard/submitSearchQuery")
-    public String searchQuery(@CookieValue(name = "jwt", required = false) String jwt,
-                              @RequestParam("hidden-tags") String tags,
-                              Model model) throws InvalidTagsResearchException {
-        return "wip";
-        /*
+    public String searchQuery(
+            @RequestParam("hidden-tags") String tags,
+            Model model
+    ) throws InvalidTagsResearchException {
 
         final String[] splitTags = tags.split(",");
         Set<String> tagsArray = new HashSet<>(Arrays.stream(splitTags).toList());
@@ -126,10 +128,10 @@ public class Dashboard {
             model.addAttribute("path", "/ search result");
             return "cn/research";
         } else {
-            throw new PicmanSettings.InvalidTagsResearchException("Tried to parse unrecognized tag(s): '" + tagsArray + "'");
+            throw new InvalidTagsResearchException("Tried to parse unrecognized tag(s): '" + tagsArray + "'");
         }
 
-         */
+
     }
 }
 

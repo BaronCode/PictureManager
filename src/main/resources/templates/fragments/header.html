@@ -12,9 +12,10 @@
                 <div class="w-25"></div>
                 <div class="w-25 te tw">
                     <i class="fa-solid fa-house ichl" th:onclick="|window.location.href='/cn/home'|"></i> <!--Home-->
-                    <i class="fa-solid fa-image ichl" th:onclick="|window.location.href='/cn/dashboard'|"></i> <!--Dashboard-->
-                    <i class="fa-solid fa-list ichl"></i>  <!--Categories-->
-                    <i class="fa-solid fa-gear ichl"></i>  <!--Admin panel-->
+                    <i class="fa-solid fa-upload ichl" th:onclick="|window.location.href='/cn/i/upload'|"></i>
+                    <i class="fa-solid fa-list ichl" th:onclick="|window.location.href='/cn/c/categories'|"></i>
+                    <!--/*@thymesVar id="gear" type="java"*/-->
+                    <i th:if="${gear}" class="fa-solid fa-gear ichl"></i>  <!--Admin panel-->
                 </div>
             </div>
         </div>

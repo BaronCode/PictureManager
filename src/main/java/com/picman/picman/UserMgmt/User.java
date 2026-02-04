@@ -10,15 +10,20 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.Set;
 
-@AllArgsConstructor @NoArgsConstructor @Getter @Setter @Entity
-@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Entity
+@Table(name = "users")
 public class User {
-    @Id @NotNull @GeneratedValue(strategy = GenerationType.IDENTITY)                private     int                id;
-    @NotNull @Column(nullable = false, length = 30)                                                                        private     String              name;
-    @NotNull @Column(nullable = false, length = 255, unique = true)                                                                        private     String              email;
-    @NotNull @Column(nullable = false, length = 255)                                                          private     String              password;
-    @NotNull @Column(nullable = false, length = 3) @Convert(converter = PrivilegesConverter.class)                                                                       private Set<Character> privileges;
-    @NotNull @Column(nullable = false, length = 128)                                                    private String organization;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)                         private     int             id;
+    @Column(nullable = false, length = 30)                                          private     String          name;
+    @Column(nullable = false, unique = true)                                        private     String          email;
+    @Column(nullable = false)                                                       private     String          password;
+    @Column(nullable = false, length = 3) @Convert(converter = PrvConverter.class)  private     Set<Character>  privileges;
+    @Column(nullable = false, length = 128)                                         private     String          organization;
+
     /*  PRIVILEGES
         [o] - owner
         [u] - user control

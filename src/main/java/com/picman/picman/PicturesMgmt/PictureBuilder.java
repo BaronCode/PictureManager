@@ -5,12 +5,10 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import com.picman.picman.SpringSettings.PicmanSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,7 +23,7 @@ import java.time.ZoneId;
 public class PictureBuilder {
     private static final Logger logger = LoggerFactory.getLogger(PictureBuilder.class);
 
-    public static Picture buildByFile(File f, boolean savingNew) {
+    public static Picture buildByFile(File f, boolean savingNew, String directory) {
         Picture p = null;
         byte[] fname = new byte[]{0};
         MessageDigest sha256;
@@ -70,15 +68,15 @@ public class PictureBuilder {
             p.setProtection(false);
 
         } finally {
-            if (savingNew) {
+            if (savingNew && directory != null) {
                 File g = new File(
-                        new PicmanSettings().getDefaultFileOutput()
-                                .concat(File.separator)
+                        directory
                                 .concat(p.getPath())
                                 .concat(".")
                                 .concat(p.getExt())
                 );
                 f.renameTo(g);
+                Thumbs.saveThumb(g);
             }
         }
         return p;

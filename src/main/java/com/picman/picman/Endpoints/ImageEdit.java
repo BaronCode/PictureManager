@@ -9,9 +9,11 @@ import com.picman.picman.Exceptions.ImageProcessingException;
 import com.picman.picman.PicturesMgmt.Picture;
 import com.picman.picman.PicturesMgmt.PictureBuilder;
 import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
+import com.picman.picman.SpringSettings.Settings;
+import com.picman.picman.SpringSettings.SettingsService;
+import com.picman.picman.PicturesMgmt.Thumbs;
 import com.picman.picman.Utilities.ZipEntryMultipartFile;
 import com.picman.picman.SpringAuthentication.JwtService;
-import com.picman.picman.SpringSettings.PicmanSettings;
 import com.picman.picman.UserMgmt.User;
 import com.picman.picman.UserMgmt.UserServiceImplementation;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -44,15 +43,15 @@ public class ImageEdit {
     private final CategoryServiceImplementation categoryService;
     private final AssignationServiceImplementation assignationService;
     private final JwtService jwtService;
-    private final PicmanSettings picmanSettings;
+    private final SettingsService settings;
 
-    public ImageEdit(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, AssignationServiceImplementation asi, JwtService js) {
+    public ImageEdit(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, AssignationServiceImplementation asi, JwtService js, SettingsService ss) {
         userService = usi;
         pictureService = psi;
         categoryService = csi;
         assignationService = asi;
         jwtService = js;
-        picmanSettings = new PicmanSettings();
+        settings = ss;
         logger = LoggerFactory.getLogger(ImageEdit.class);
     }
 
@@ -80,9 +79,10 @@ public class ImageEdit {
             throw new FieldNotFoundException("Picture with id" + id + "does not exist!");
         }
 
-        File pictureFile = new File(picmanSettings.getDefaultFileOutput() + p.getPath() + "." + p.getExt());
-        if (pictureFile.isFile() && pictureFile.delete()) {
-            if (p_deletable(p, privileges)) {
+        File pictureFile = new File(Settings.get("output") + p.getPath() + "." + p.getExt());
+        if (pictureFile.isFile() && p_deletable(p, privileges)) {
+            if (pictureFile.delete()) {
+                Thumbs.deleteThumb(p.getPath().concat(".").concat(p.getExt()));
                 pictureService.deleteById(id);
                 logger.info("Deleted file {} and all matching database entries", p.getPath());
             }
@@ -113,10 +113,9 @@ public class ImageEdit {
 
         List<Category> pictureCat = assignationService.getCategoriesByPictureId(picture.getId());
         List<Category> allCategories = categoryService.findAll();
-        PicmanSettings ps = new PicmanSettings();
 
         model.addAttribute("pic", picture);
-        model.addAttribute("defaultPath", ps.getDefaultFileOutput());
+        model.addAttribute("defaultPath", Settings.get("output"));
         model.addAttribute("pictureCategories", pictureCat);
         model.addAttribute("all", allCategories);
         model.addAttribute("path", "/ image edit");
@@ -127,8 +126,7 @@ public class ImageEdit {
     @ResponseBody
     public Map<String, String> upload(
             @CookieValue(name = "jwt") String jwt,
-            @RequestPart(value = "file") MultipartFile file,
-            Model model
+            @RequestPart(value = "file") MultipartFile file
     ) {
         String email = jwtService.extractUserMail(jwt);
         User current = userService.findByEmail(email);
@@ -177,8 +175,7 @@ public class ImageEdit {
             if (file.getOriginalFilename()==null) {
                 throw new ImageProcessingException("Original file has no name!");
             }
-            File saved = new File(picmanSettings
-                    .getDefaultFileOutput()
+            File saved = new File(Settings.get("output")
                     .concat(
                             file
                             .getOriginalFilename()
@@ -187,7 +184,8 @@ public class ImageEdit {
                                 .getOriginalFilename()
                                 .lastIndexOf(File.separator)+1)));
             file.transferTo(saved);
-            return PictureBuilder.buildByFile(saved, true);
+
+            return PictureBuilder.buildByFile(saved, true, Settings.get("output"));
 
         } catch (IOException e) {
             throw new ImageProcessingException("An error happened while transfering temporary image file");

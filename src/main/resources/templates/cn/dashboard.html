@@ -160,10 +160,10 @@
                 </div>
             <div class="tb g-5 w-75 b-r-c-3 m-a mt-10 p-2">
                 <div th:each="ph: ${last}" class="picdiv ffc">
-                    <img th:src="|/images/${ph.getPath()}.${ph.getExt()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
+                    <img th:src="|/images/thumbs/${ph.getPath()}.${ph.getExt()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
 
                     <div class="ph-controls" th:id="|controls-${ph.getId()}|">
-                        <button class="crs-p t-all-2s" th:data-src="|/images/${ph.getPath()}.${ph.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
+                        <button class="crs-p t-all-2s" th:data-src="|/images/thumbs/${ph.getPath()}.${ph.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
                         <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/edit?pic-id=' + ${ph.getId()} + '`'" th:if="${o || w || s}"><i class="fa fa-pencil"></i></button>
                         <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.getId()} + '`'" th:if="${o || d || s}"><i class="fa fa-trash"></i></button>
                         <button class="crs-p t-all-2s" th:if="${o || w || d || r || s}"><a th:href="|/images/${ph.getPath()}.${ph.getExt()}|" download=""><i class="fa fa-download"></i></a></button>

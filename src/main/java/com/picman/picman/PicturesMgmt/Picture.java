@@ -11,24 +11,28 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@AllArgsConstructor @NoArgsConstructor @Getter @Setter @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Entity
 @Table(name = "pictures")
 public class Picture {
-    @Id @NotNull @GeneratedValue(strategy = GenerationType.IDENTITY)    private     long            id;
-    @NotNull @Column(nullable = false, length = 255, unique = true)     private     String          path;
-    @NotNull @Column(nullable = false, length = 4)                      private     String          ext;
-    @NotNull @Column(nullable = false)                                  private     LocalDateTime   dateadded;
-    @NotNull @Column(nullable = false)                                  private     boolean         protection;
-                                                                        private     BigDecimal      sizekb;
-                                                                        private     LocalDateTime   shotat;
-                                                                        private     Integer         height;
-                                                                        private     Integer         width;
-                                                                        private     BigDecimal      aperture;
-                                                                        private     Integer         iso;
-                                                                        private     Short           focallength;
-                                                                        private     Integer         exposurenum;
-                                                                        private     Integer         exposureden;
-                                                                        private     String          cameramodel;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)                         private     long            id;
+    @Column(nullable = false, unique = true)                                        private     String          path;
+    @Column(nullable = false, length = 4)                                           private     String          ext;
+    @Column(nullable = false)                                                       private     LocalDateTime   dateadded;
+    @Column(nullable = false)                                                       private     boolean         protection;
+                                                                                    private     BigDecimal      sizekb;
+                                                                                    private     LocalDateTime   shotat;
+                                                                                    private     Integer         height;
+                                                                                    private     Integer         width;
+                                                                                    private     BigDecimal      aperture;
+                                                                                    private     Integer         iso;
+                                                                                    private     Short           focallength;
+                                                                                    private     Integer         exposurenum;
+                                                                                    private     Integer         exposureden;
+                                                                                    private     String          cameramodel;
 
     public Picture(
         String          path,

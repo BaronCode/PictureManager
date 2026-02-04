@@ -1,12 +1,9 @@
 package com.picman.picman.Endpoints;
 
-import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
 import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
 import com.picman.picman.Exceptions.InvalidFormParamException;
-import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
 import com.picman.picman.SpringAuthentication.JwtService;
-import com.picman.picman.SpringSettings.PicmanSettings;
 import com.picman.picman.UserMgmt.User;
 import com.picman.picman.UserMgmt.UserServiceImplementation;
 import jakarta.validation.Valid;
@@ -25,19 +22,13 @@ import java.util.Set;
 public class Categories {
     private final Logger logger;
     private final UserServiceImplementation userService;
-    private final PictureServiceImplementation pictureService;
     private final CategoryServiceImplementation categoryService;
-    private final AssignationServiceImplementation assignationService;
     private final JwtService jwtService;
-    private final PicmanSettings picmanSettings;
 
-    public Categories(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, AssignationServiceImplementation asi, JwtService js) {
+    public Categories(UserServiceImplementation usi, CategoryServiceImplementation csi, JwtService js) {
         userService = usi;
-        pictureService = psi;
         categoryService = csi;
-        assignationService = asi;
         jwtService = js;
-        picmanSettings = new PicmanSettings();
         logger = LoggerFactory.getLogger(Categories.class);
     }
 

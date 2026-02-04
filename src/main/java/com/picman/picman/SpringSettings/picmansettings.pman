@@ -1,7 +1,13 @@
+::: OBSOLETE FILE
+::: DO NOT USE
+:::
 ::: PicMan settings configuration file
 ::: DO NOT EDIT WITHOUT TECHNICAL SUPPORT
 ::: ANY DISCREPANCIES WILL BE NOTIFIED TO THE ADMINISTRATOR
-%defaultFileOutput=/mnt/drive166gb/picmanph/
-%organizationName=Picman
-%superAdminID=1000000001
-%registeredSupportIDs=1000000001,1000000002
+::: %defaultFileOutput=/mnt/drive166gb/picmanph/
+::: %organizationName=Picman
+::: %superAdminID=1000000001
+::: %registeredSupportIDs=1000000001,1000000002
+:::
+::: OBSOLETE FILE
+::: DO NOT USE

@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Converter
-public class PrivilegesConverter implements AttributeConverter<Set<Character>, String> {
+public class PrvConverter implements AttributeConverter<Set<Character>, String> {
 
     @Override
     public String convertToDatabaseColumn(Set<Character> attribute) {

@@ -1,11 +1,10 @@
-package com.picman.picman.WebView;
+package com.picman.picman.Endpoints;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.view.RedirectView;
 
 @Slf4j
 @RequestMapping("/")
@@ -17,10 +16,10 @@ public class GeneralMapper {
         return "u/login";
     }
 
-    @RequestMapping(value = {"/c/i/upload", "/c/upload", "/upload"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/cn/i/upload", "/cn/upload", "/upload"}, method = RequestMethod.GET)
     public String upload(Model model) {
         model.addAttribute("path", "/ upload");
-        return "c/i/upload";
+        return "cn/i/upload";
     }
 
     @RequestMapping(value = {"/404", "/wip"})

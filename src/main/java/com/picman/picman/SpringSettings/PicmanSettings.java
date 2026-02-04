@@ -12,13 +12,13 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Getter @Slf4j
+@Getter @Slf4j @Deprecated
 public final class PicmanSettings {
     private String defaultFileOutput;
     private String defaultOrganizationName;
     private int superAdminID;
     private Set<Integer> technicalUsersIDs;
-    private Logger logger = LoggerFactory.getLogger(PicmanSettings.class);
+    private final Logger logger = LoggerFactory.getLogger(PicmanSettings.class);
 
     public PicmanSettings() {
         parseSettings();
