@@ -119,34 +119,34 @@ textarea {
 }
 .g-1 {
     display: grid;
-    grid-template-columns: repeat(1, auto);
+    grid-template-columns: repeat(1, 1fr);
     gap: 1vw;
 }
 .g-2 {
     display: grid;
-    grid-template-columns: repeat(2, auto);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1vw;
 }
 .g-3 {
     display: grid;
-    grid-template-columns: repeat(3, auto);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1vw;
 }
 .g-4 {
     display: grid;
-    grid-template-columns: repeat(4, auto);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1vw;
 }
 .g-5 {
     display: grid;
-    grid-template-columns: repeat(5,auto);
+    grid-template-columns: repeat(5,1fr);
     gap: 1vw;
 }
 .ib {
     display: inline-block;
 }
 .n {
-    display: none;
+    display: none !important;
 }
 .f {
     display: flex;
@@ -260,7 +260,7 @@ textarea {
 }
 #search {
     border: 2px solid var(--darkorange);
-    border-radius: 2vw;
+    border-radius: 1vw;
     background-color: white;
 }
 #categories-input {
@@ -273,7 +273,7 @@ input:focus-visible, textarea:focus-visible {
 }
 #categories-results {
     border-radius: inherit;
-    /*padding: 2% 0;*/
+    padding: 2% 0;
 }
 #categories-results > p {
     padding: 0.5% 1%;
@@ -392,10 +392,15 @@ a.table-pg-s {
 a.table-pg-s.active {
     background-color: var(--darkorange);
 }
-#tnav {
+#tnav, #pnav {
     margin-top: 1vh;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1.5vw;
     gap: 1%;
+}
+#adv-rsc input {
+    border: none;
+    background-color: transparent;
+    font-family: inherit;
 }

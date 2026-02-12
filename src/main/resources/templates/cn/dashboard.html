@@ -13,8 +13,36 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css">
 
+        <script>
+            /*$(document).ready(function(){
+                const rows = $('#pictures div[id^="p-"]')
+                const rowsShown = 10;
+                const rowsTotal = rows.length;
+                const numPages = rowsTotal / rowsShown;
+                for(i = 0;i < numPages;i++) {
+                    let pageNum = i + 1;
+                    $('#pnav').append('<a class="table-pg-s ib b-1-do" href="#pictures" rel="'+i+'">'+pageNum+'</a> ');
+                }
+
+
+                rows.hide();
+                rows.slice(0, rowsShown).show();
+                $('#pnav a:first').addClass('active');
+                $('#pnav a').bind('click', function(){
+
+                    $('#pnav a').removeClass('active');
+                    $(this).addClass('active');
+                    let currPage = $(this).attr('rel');
+                    let startItem = currPage * rowsShown;
+                    let endItem = startItem + rowsShown;
+                    $(rows).css('opacity','0.0').hide().slice(startItem, endItem).css("display", "flex").animate({opacity:1}, 300);
+                });
+            });*/
+        </script>
+
         <script th:inline="javascript">
-            const cats = [[${categories}]]
+            let catsMap = [[${categories}]]
+            const cats = catsMap.map(i => { return { name: i.name, id: i.id }})
 
             $(document).ready(function () {
                 const hhgt = $('#header').css('height')
@@ -24,7 +52,7 @@
             })
 
         </script>
-        <script>
+        <script th:inline="javascript">
             $(document).ready(function () {
                 const res = $('#categories-results')
                 const $input = $('input#categories-input')
@@ -35,7 +63,7 @@
                 }
 
                 function checkValidAndAppend(text) {
-                    const yieldedText = cats.filter(i=>i.toLowerCase().includes(text))
+                    const yieldedText = cats.filter(i=>i["name"].toLowerCase().includes(text))
                     if (yieldedText.length===1 && !tags.includes(yieldedText[0])) {
                         tags.push(yieldedText[0])
                         return yieldedText[0]
@@ -48,10 +76,10 @@
 
                     if (!res) return;
 
-                    let $tag = $('<span class="tag"></span>').text(res);
+                    let $tag = $('<span class="tag"></span>').text(res["name"]);
                     $tag.on('click', function () {
                         // remove tag on click
-                        tags = tags.filter(t => t !== res);
+                        tags = tags.filter(t => t["name"] !== res["name"]);
                         $tag.remove();
                         updateHidden();
                     });
@@ -75,9 +103,49 @@
                             updateHidden()
                         }
                     } else if (e.key === 'Enter' && $input.val() === '') {
+                        console.log("fires")
+                        const shownDivs = $('div[id^="p-"]');
                         if (tags.length !== 0) {
-                            $('#tagsForm').submit()
 
+                            const images = [[${imageCategoryMap}]]
+/*
+                            $.each($(divs), function () {
+                                for (let key of Object.keys(images)) {
+                                    let divid = this.id.split("-")[1]
+
+                                    if (!(Object.keys(images).includes(divid))) {
+                                        $(this).addClass("n")
+                                    }
+                                }
+                            })*/
+
+
+                            const tagsIds = []
+                            let checker = (original, target) => target.every(value => original.includes(value))
+                            Object.keys(tags).forEach(t => tagsIds.push(tags[t]["id"].toString()))
+
+                            $.each($(shownDivs), function () {
+                                let divid = this.id.split("-")[1];
+                                const taggedImages = Object.keys(images)
+
+                                if (taggedImages.includes(divid)) {
+                                    if (checker(images[divid], tagsIds)) {
+                                        $(this).removeClass("n")
+                                        $("#" + this.id + " > .ph-controls button.gallery").attr("data-fancybox", "gallery")
+                                    } else {
+                                        $(this).addClass("n")
+                                        $("#" + this.id + " > .ph-controls button.gallery").removeAttr("data-fancybox")
+                                    }
+                                } else {
+                                    $(this).addClass("n")
+                                    $("#" + this.id + " > .ph-controls button.gallery").removeAttr("data-fancybox")
+                                }
+                            })
+                        } else {
+                            $.each($(shownDivs), function () {
+                                $(this).removeClass("n")
+                                $("#" + this.id + " > .ph-controls button.gallery").attr("data-fancybox", "gallery")
+                            })
                         }
                     }
                 }
@@ -94,12 +162,12 @@
                     res.empty()
                     if (inputval.length > 1) {
                         res.removeClass("vhdn")
-                        let filter = cats.filter(i => i.toLowerCase().includes(inputval.toLowerCase()))
+                        let filter = cats.filter(i => i["name"].toLowerCase().includes(inputval.toLowerCase()))
                         filter = filter.filter(i => !tags.includes(i))
                         if (filter.length===0) {
                             res.append('<p class="no-result">Nessun risultato</p>')
                         } else {
-                            filter.forEach(f => {res.append('<p class="result" tabindex="' + (filter.indexOf(f)+1) + '">' + f + '</p>')})
+                            filter.forEach(f => {res.append('<p class="result" tabindex="' + (filter.indexOf(f)+1) + '">' + f["name"] + '</p>')})
                             $("p.result[tabindex='1']").attr("autofocus", "true")
                             // For future implementation of result navigability
                         }
@@ -120,7 +188,8 @@
                     res.addClass("vhdn")
                 })
             })
-
+        </script>
+        <script>
             $(document).ready(function () {
                 const size = $(".ph-controls button").length/$(".picdiv").length
                 $(".ph-controls").addClass("g-"+size)
@@ -148,29 +217,61 @@
             <div id="hrepdiv" class="bg-transparent"></div>
         </div>
         <main class="mt-10 mb-10 p-s-2 w-100 bg-light-orange">
-            <div class="tb w-75 m-a mt-10">
-                <div class="w-100 p-2 z-3" id="search">
-                    <div id="tagsDiv" class="p-s-1"><i id="tagsDivBegin"></i></div>
-                    <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
-                    <form id="tagsForm" th:action="@{/cn/dashboard/submitSearchQuery}" method="get" class="vhdn">
-                        <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
-                    </form>
-                    <div id="categories-results" class="w-100 vhdn p-b-0"></div>
-                </div>
-                </div>
-            <div class="tb g-5 w-75 b-r-c-3 m-a mt-10 p-2">
-                <div th:each="ph: ${last}" class="picdiv ffc">
-                    <img th:src="|/images/thumbs/${ph.getPath()}.${ph.getExt()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
+            <div class="ffr">
+                <div class="ffc w-75">
+                    <div class="tb g-5 mt-5 w-100 p-2" id="pictures">
+                        <div th:each="ph: ${last}" class="picdiv ffc" th:id="|p-${ph.getId()}|">
+                            <img th:src="|/images/thumbs/${ph.getPath()}.${ph.getExt()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
 
-                    <div class="ph-controls" th:id="|controls-${ph.getId()}|">
-                        <button class="crs-p t-all-2s" th:data-src="|/images/thumbs/${ph.getPath()}.${ph.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
-                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/edit?pic-id=' + ${ph.getId()} + '`'" th:if="${o || w || s}"><i class="fa fa-pencil"></i></button>
-                        <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.getId()} + '`'" th:if="${o || d || s}"><i class="fa fa-trash"></i></button>
-                        <button class="crs-p t-all-2s" th:if="${o || w || d || r || s}"><a th:href="|/images/${ph.getPath()}.${ph.getExt()}|" download=""><i class="fa fa-download"></i></a></button>
+                            <div class="ph-controls" th:id="|controls-${ph.getId()}|">
+                                <button class="crs-p gallery t-all-2s" th:data-src="|/images/${ph.getPath()}.${ph.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
+                                <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/edit?pic-id=' + ${ph.getId()} + '`'" th:if="${o || w || s}"><i class="fa fa-pencil"></i></button>
+                                <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.getId()} + '`'" th:if="${o || d || s}"><i class="fa fa-trash"></i></button>
+                                <button class="crs-p t-all-2s" th:if="${o || w || d || r || s}"><a th:href="|/images/${ph.getPath()}.${ph.getExt()}|" download=""><i class="fa fa-download"></i></a></button>
+                            </div>
+
+                        </div>
                     </div>
-
+                </div>
+                <div class="ffc w-25">
+                    <div class="tb p-s-2 w-100 mt-10">
+                        <div class="w-100 p-2" id="search">
+                            <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
+                            <form id="tagsForm" method="get" class="vhdn"><!--th:action="@{/cn/dashboard/submitSearchQuery}"-->
+                                <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
+                            </form>
+                            <div id="categories-results" class="w-100 vhdn p-b-0"></div>
+                            <div id="tagsDiv" class="p-s-1"><i id="tagsDivBegin"></i></div>
+                        </div>
+                        <div class="w-100 tb p-2">
+                            <p class="w-100 tc">Advanced research</p>
+                            <div class="ffc mt-2" id="adv-rsc">
+                                <div class="ffr">
+                                    <div class="w-50"><p>Shot before</p></div>
+                                    <div class="w-50 te"><label for="shotbefore"><input id="shotbefore" type="date"></label></div>
+                                </div>
+                                <div class="ffr">
+                                    <div class="w-50"><p>Shot after</p></div>
+                                    <div class="w-50 te"><label for="shotafter"><input id="shotafter" type="date"></label></div>
+                                </div>
+                                <div class="ffr">
+                                    <div class="w-50"><p>Uploaded before</p></div>
+                                    <div class="w-50 te"><label for="uploadedbefore"><input id="uploadedbefore" type="date"></label></div>
+                                </div>
+                                <div class="ffr">
+                                    <div class="w-50"><p>Uploaded after</p></div>
+                                    <div class="w-50 te"><label for="uploadedafter"><input id="uploadedafter" type="date"></label></div>
+                                </div>
+                                <div class="ffr">
+                                    <div class="w-50"><p>Uploaded after</p></div>
+                                    <div class="w-50 te"><label for="size"><input id="size" type="range"></label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div id="pnav" style="gap: 1%" class="tw w-75 m-a"></div>
         </main>
         <div th:replace="~{fragments/footer :: footer}"></div>
 

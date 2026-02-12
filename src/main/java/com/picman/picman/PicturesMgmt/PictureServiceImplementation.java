@@ -13,8 +13,8 @@ public class PictureServiceImplementation implements PictureService {
     private final PictureRepo pictureRepo;
 
     @Override
-    public List<Picture> getLast20Added() {
-        return pictureRepo.getLast20Added();
+    public List<Picture> getLastAdded(int max) {
+        return pictureRepo.getLastAdded(max);
     }
 
     @Override

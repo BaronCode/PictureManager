@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository @Table
 public interface AssignationRepo extends JpaRepository<Assignation, Integer> {
@@ -19,4 +20,7 @@ public interface AssignationRepo extends JpaRepository<Assignation, Integer> {
 
     @Query("SELECT c FROM Category c INNER JOIN (SELECT a.category AS cat FROM Assignation a WHERE a.picture.id = ?1) subq ON c.id = subq.cat.id")
     List<Category> getCategoriesByPictureId(long id);
+
+    @Query(value = "select a.picture, string_agg(a.category::character varying, ',') as categorieslist from assignations a group by a.picture", nativeQuery = true)
+    List<PicturesCategories> getAssignationsGroup();
 }

@@ -1,6 +1,7 @@
 package com.picman.picman.Endpoints;
 
 import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
+import com.picman.picman.AssignationMgmt.PicturesCategories;
 import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
 import com.picman.picman.Exceptions.InvalidTagsResearchException;
@@ -92,10 +93,25 @@ public class Dashboard {
             privileges = Set.of('r');
         }
 
-        model.addAttribute("categories", categoryService.findAll().stream().map(Category::getName).toList());
+
+
+        Map<Integer, List<String>> pc = assignationService
+                .getAssignationsGroup()
+                .stream()
+                .collect(Collectors.toMap(
+                        PicturesCategories::getPicture,
+                        s ->
+                                Arrays.stream(s
+                                        .getCategoriesList()
+                                        .split(",")
+                                ).toList()
+                ));
+
+        model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("path", "/ dashboard");
         model.addAttribute("defaultPath", Settings.get("output"));
-        model.addAttribute("last", pictureService.getLast20Added());
+        model.addAttribute("last", pictureService.getLastAdded(Integer.parseInt(Settings.get("max_image_select"))));
+        model.addAttribute("imageCategoryMap", pc);
         model.addAttribute("o", privileges.contains('o'));
         model.addAttribute("d", privileges.contains('d'));
         model.addAttribute("w", privileges.contains('w'));

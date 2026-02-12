@@ -40,7 +40,7 @@ public class PictureBuilder {
             Metadata metadata = ImageMetadataReader.readMetadata(f);
             ExifIFD0Directory ifd0 = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
             ExifSubIFDDirectory subifd = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-
+            
             p = new Picture(
                     String.format("%064x", new BigInteger(1, fname)),
                     substring,

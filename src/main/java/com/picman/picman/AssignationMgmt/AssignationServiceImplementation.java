@@ -14,6 +14,15 @@ public class AssignationServiceImplementation implements AssignationService {
         assignationRepo = ar;
     }
 
+    @Override
+    public List<Assignation> findAll() {
+        return assignationRepo.findAll();
+    };
+
+    @Override
+    public List<PicturesCategories> getAssignationsGroup() {
+        return assignationRepo.getAssignationsGroup();
+    }
 
     @Override
     public List<Picture> getAssignationsByCategoryList(int[] categories) {

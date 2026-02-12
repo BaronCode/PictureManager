@@ -1,6 +1,5 @@
 package com.picman.picman.PicturesMgmt;
 
-import com.drew.lang.Rational;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,8 +14,8 @@ import java.util.List;
 
 @Repository @Table
 public interface PictureRepo extends JpaRepository<Picture, Integer> {
-    @Query("select p from Picture p order by p.dateadded desc limit 20")
-    List<Picture> getLast20Added();
+    @Query("select p from Picture p order by p.dateadded desc limit ?1")
+    List<Picture> getLastAdded(int max);
 
     @Transactional
     @Modifying
