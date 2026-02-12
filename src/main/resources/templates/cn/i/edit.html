@@ -54,6 +54,7 @@
                                 <p>ISO speed</p>
                                 <p>Focal length</p>
                                 <p>Camera model</p>
+                                <p>Photographer</p>
                             </div>
                             <div class="w-50 tb te data">
                                 <p th:text="${pic.getSizekb() != null ? pic.getSizekb() + ' KB' : 'No data'}"></p>
@@ -66,6 +67,7 @@
                                 <p th:text="${pic.getIso() ?: 'No data'}"></p>
                                 <p th:text="${pic.getFocallength() != null ? pic.getFocallength() + ' mm' : 'No data'}"></p>
                                 <p th:text="${pic.getCameramodel() ?: 'No data'}"></p>
+                                <p th:text="${pic.getPhotographer() ?: 'No data'}"></p>
                             </div>
                         </div>
                     </div>

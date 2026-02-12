@@ -12,5 +12,6 @@ public interface PictureService {
     Picture addPicture(Picture p);
     void deleteById(int id);
     Picture getById(int id);
+    boolean existsByPath(String path);
     void updateMetadata(long pid, BigDecimal skb, LocalDateTime shot, Integer h, Integer w, BigDecimal ap, Integer iso, Short foc, Integer exnum, Integer exden, String cam);
 }

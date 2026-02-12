@@ -1,6 +1,7 @@
 package com.picman.picman.SpringSettings;
 
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.picman.picman.PicturesMgmt.Picture;
@@ -32,7 +33,7 @@ public class StartActions {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    public void updateImageDatabase() {
+    public void updateImageDatabase() throws ImageProcessingException {
         File superDir = new File(Settings.get("output"));
         boolean upToDate = true;
         if (superDir.isDirectory()) {
@@ -46,7 +47,7 @@ public class StartActions {
                         if (i == 0) {
                             upToDate = false;
                             logger.warn("Detected change in {}, adding to database image {}", Settings.get("output"), f.getAbsolutePath());
-                            Picture p = PictureBuilder.buildByFile(f, false, null);
+                            Picture p = PictureBuilder.buildByFile(f, false, null, pictureService);
                             Picture added = pictureService.addPicture(p);
                             logger.info("Added new {} Picture {}:\"{}\"", (added.isProtection() ? "protected" : "unprotected"), added.getId(), added.getPath());
                         }

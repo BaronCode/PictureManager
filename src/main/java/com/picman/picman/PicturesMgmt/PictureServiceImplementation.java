@@ -41,4 +41,9 @@ public class PictureServiceImplementation implements PictureService {
     public void updateMetadata(long pid, BigDecimal skb, LocalDateTime shot, Integer h, Integer w, BigDecimal ap, Integer iso, Short foc, Integer exnum, Integer exden, String cam) {
         pictureRepo.updateMetadata(pid, skb, shot, h, w, ap, iso, foc, exnum, exden, cam);
     }
+
+    @Override
+    public boolean existsByPath(String path) {
+        return pictureRepo.existsByPath(path);
+    }
 }

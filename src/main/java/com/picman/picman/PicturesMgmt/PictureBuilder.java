@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -23,7 +25,7 @@ import java.time.ZoneId;
 public class PictureBuilder {
     private static final Logger logger = LoggerFactory.getLogger(PictureBuilder.class);
 
-    public static Picture buildByFile(File f, boolean savingNew, String directory) {
+    public static Picture buildByFile(File f, boolean savingNew, String directory, PictureServiceImplementation ps) throws ImageProcessingException {
         Picture p = null;
         byte[] fname = new byte[]{0};
         MessageDigest sha256;
@@ -36,28 +38,47 @@ public class PictureBuilder {
         }
 
         String substring = f.getName().substring(f.getName().lastIndexOf('.') + 1).toLowerCase();
+        String name = String.format("%064x", new BigInteger(1, fname));
+
+        if (ps.existsByPath(name)) {
+            if (f.delete()) {
+                return null;
+            } else throw new ImageProcessingException("Error while processing image " + name);
+
+        }
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(f);
             ExifIFD0Directory ifd0 = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
             ExifSubIFDDirectory subifd = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-            
-            p = new Picture(
-                    String.format("%064x", new BigInteger(1, fname)),
-                    substring,
-                    LocalDateTime.now(),
-                    false,
-                    new BigDecimal(Math.round((float) f.length() /1024)),
-                    subifd.getDateOriginal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                    subifd.getInteger(ExifIFD0Directory.TAG_EXIF_IMAGE_HEIGHT),
-                    subifd.getInteger(ExifIFD0Directory.TAG_EXIF_IMAGE_WIDTH),
-                    new BigDecimal(subifd.getDoubleObject(ExifSubIFDDirectory.TAG_FNUMBER)),
-                    subifd.getInteger(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT),
-                    Math.toIntExact(subifd.getRational(ExifSubIFDDirectory.TAG_EXPOSURE_TIME).getNumerator()),
-                    Math.toIntExact(subifd.getRational(ExifSubIFDDirectory.TAG_EXPOSURE_TIME).getDenominator()),
-                    subifd.getInteger(ExifSubIFDDirectory.TAG_FOCAL_LENGTH).shortValue(),
-                    ifd0.getString(ExifIFD0Directory.TAG_MODEL)
-            );
 
+            if (ifd0 == null || subifd == null) {
+                BufferedImage buff = ImageIO.read(f);
+                p = new Picture();
+                p.setPath(String.format("%064x", new BigInteger(1, fname)));
+                p.setExt(substring);
+                p.setDateadded(LocalDateTime.now());
+                p.setProtection(false);
+                p.setSizekb(new BigDecimal(Math.round((float) f.length() / 1024)));
+                p.setWidth(buff.getWidth());
+                p.setHeight(buff.getHeight());
+            } else {
+                p = new Picture(
+                        name,
+                        substring,
+                        LocalDateTime.now(),
+                        false,
+                        new BigDecimal(Math.round((float) f.length() / 1024)),
+                        subifd.getDateOriginal().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                        subifd.getInteger(ExifIFD0Directory.TAG_EXIF_IMAGE_HEIGHT),
+                        subifd.getInteger(ExifIFD0Directory.TAG_EXIF_IMAGE_WIDTH),
+                        new BigDecimal(subifd.getDoubleObject(ExifSubIFDDirectory.TAG_FNUMBER)),
+                        subifd.getInteger(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT),
+                        Math.toIntExact(subifd.getRational(ExifSubIFDDirectory.TAG_EXPOSURE_TIME).getNumerator()),
+                        Math.toIntExact(subifd.getRational(ExifSubIFDDirectory.TAG_EXPOSURE_TIME).getDenominator()),
+                        subifd.getInteger(ExifSubIFDDirectory.TAG_FOCAL_LENGTH).shortValue(),
+                        ifd0.getString(ExifIFD0Directory.TAG_MODEL)
+                );
+            }
         } catch (NullPointerException | ImageProcessingException | IOException imr) {
             logger.warn("Could not read metadata of file {}, falling back to null metadata values", f.getName());
 
@@ -68,15 +89,17 @@ public class PictureBuilder {
             p.setProtection(false);
 
         } finally {
-            if (savingNew && directory != null) {
+            if (savingNew && directory != null && p != null) {
                 File g = new File(
                         directory
                                 .concat(p.getPath())
                                 .concat(".")
                                 .concat(p.getExt())
                 );
-                f.renameTo(g);
-                Thumbs.saveThumb(g);
+                if (f.renameTo(g)) {
+                    Thumbs.saveThumb(g);
+                }
+
             }
         }
         return p;

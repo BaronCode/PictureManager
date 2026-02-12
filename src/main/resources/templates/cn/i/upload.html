@@ -46,43 +46,57 @@
                 });
 
                 /* SUBMIT */
-                form.on("submit", e => {
+                (form).on("submit", e => {
+                    console.log("fires")
                     e.preventDefault();
-
-                    const fd = new FormData();
-                    if (droppedFiles) {
-                        if (accept.some(s => droppedFiles[0].name.toLowerCase().endsWith(s))) {
-                            fd.append("file", droppedFiles[0]);
+                    $("#overlay").removeClass("n")
+                    $("#submit-def").on("click", function () {
+                        const fd = new FormData();
+                        if (droppedFiles) {
+                            if (accept.some(s => droppedFiles[0].name.toLowerCase().endsWith(s))) {
+                                fd.append("file", droppedFiles[0]);
+                            }
+                        } else if (fileInput.prop("files").length > 0) {
+                            fd.append("file", fileInput.prop("files")[0]);
+                        } else {
+                            alert("No file selected");
+                            return;
                         }
-                    } else if (fileInput.prop("files").length > 0) {
-                        fd.append("file", fileInput.prop("files")[0]);
-                    } else {
-                        alert("No file selected");
-                        return;
-                    }
+                        fd.append("photographer", $('#ph-input').prop("value"))
 
-                    const returnPolicy = async () => {
-                        let uploadReturnPolicy = await fetch("/cn/i/upload", {
-                            method: "POST",
-                            body: fd,
-                            credentials: "same-origin"
-                        })
+                        const returnPolicy = async () => {
+                            let uploadReturnPolicy = await fetch("/cn/i/upload", {
+                                method: "POST",
+                                body: fd,
+                                credentials: "same-origin"
+                            })
 
-                        return await uploadReturnPolicy.json();
-                    }
+                            return await uploadReturnPolicy.json();
+                        }
 
-                    const getReturn = async () => {
-                        let jsonData = await returnPolicy();
-                        window.location.href = jsonData.redirect
-                    }
+                        const getReturn = async () => {
+                            let jsonData = await returnPolicy();
+                            window.location.href = jsonData.redirect
+                        }
 
-                    getReturn()
+                        getReturn()
+                    })
+
+
                 });
             })
 
         </script>
     </head>
     <body>
+        <div class="n pabs w-100 h-100 z-3 f jcc" id="overlay">
+            <div class="w-50 b-1-do b-r-2 bg-light-orange prlt p-2 ffc">
+                <label>
+                    <input class="w-100 p-2 b-1-do b-r-1" type="text" placeholder="Photographer name" id="ph-input" required>
+                </label>
+                <button class="w-100 mt-2" id="submit-def">Upload</button>
+            </div>
+        </div>
         <div class="bg-dark-orange">
             <div th:replace="~{fragments/header :: header}"></div>
             <div id="hrepdiv" class="bg-transparent"></div>
@@ -102,7 +116,9 @@
                 </div>
             </div>
         </main>
+
         <div th:replace="~{fragments/footer :: footer}"></div>
 
     </body>
+
 </html>

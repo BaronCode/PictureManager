@@ -16,42 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class Thumbs {
-    public static void saveThumb(File original, Void v) {
-        try {
-            int extension = original.getName().split("\\.").length;
-            BufferedImage src = ImageIO.read(original);
-            BufferedImage thumb = Scalr.resize(src, 250);
-            ImageIO.write(thumb, original.getName().split("\\.")[extension-1], new File(Settings.get("th_output").concat(original.getName())));
-        } catch (IOException e) {
-            throw new ImageProcessingException("Error while processing image thumbnail");
-        }
-    }
-
-    public static void ajaja(File original) {
-        DataInputStream dis;
-        try {
-            dis = new DataInputStream(new BufferedInputStream(new FileInputStream(original)));
-            byte[] data = IOUtils.toByteArray(dis);
-            int extension = original.getName().split("\\.").length;
-            BufferedImage src = ImageIO.read(new ByteArrayInputStream(data));
-
-            Metadata metadata = ImageMetadataReader.readMetadata(original);
-
-            int orientation = 1;
-            ExifIFD0Directory ifd0 = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-
-            if (ifd0 != null && ifd0.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
-                orientation = ifd0.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-            }
-
-            src = applyOrientation(src, orientation);
-
-            BufferedImage thumb = Scalr.resize(src, 250);
-            ImageIO.write(thumb, original.getName().split("\\.")[extension - 1], new File("/mnt/drive166gb/picmanph/thumbs/".concat(original.getName())));
-        } catch (IOException | com.drew.imaging.ImageProcessingException | MetadataException e) {
-            throw new ImageProcessingException("Error while processing image thumbnail");
-        }
-    }
 
     public static void saveThumb(File original) {
         DataInputStream dis;
@@ -96,7 +60,7 @@ public class Thumbs {
                     250
             );
 
-            ImageIO.write(thumb, original.getName().split("\\.")[extension-1], new File("/mnt/drive166gb/picmanph/thumbs/".concat(original.getName())));
+            ImageIO.write(thumb, original.getName().split("\\.")[extension-1], new File(Settings.get("th_output").concat(original.getName())));
         } catch (IOException | com.drew.imaging.ImageProcessingException | MetadataException e) {
             throw new ImageProcessingException("Error while processing image thumbnail");
         }

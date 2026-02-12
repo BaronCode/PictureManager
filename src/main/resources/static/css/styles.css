@@ -404,3 +404,13 @@ a.table-pg-s.active {
     background-color: transparent;
     font-family: inherit;
 }
+#overlay {
+    background-color: rgba(0,0,0,0.58);
+    z-index: 999;
+}
+#overlay > div {
+    align-self: center;
+}
+#overlay input {
+    font-family: inherit;
+}

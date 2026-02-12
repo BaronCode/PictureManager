@@ -110,6 +110,7 @@ public class Dashboard {
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("path", "/ dashboard");
         model.addAttribute("defaultPath", Settings.get("output"));
+        model.addAttribute("maxImagesRow", Settings.get("max_images_shown"));
         model.addAttribute("last", pictureService.getLastAdded(Integer.parseInt(Settings.get("max_image_select"))));
         model.addAttribute("imageCategoryMap", pc);
         model.addAttribute("o", privileges.contains('o'));
@@ -121,7 +122,7 @@ public class Dashboard {
     }
 
 
-
+    @Deprecated
     @RequestMapping("/dashboard/submitSearchQuery")
     public String searchQuery(
             @RequestParam("hidden-tags") String tags,

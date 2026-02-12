@@ -33,6 +33,7 @@ public class Picture {
                                                                                     private     Integer         exposurenum;
                                                                                     private     Integer         exposureden;
                                                                                     private     String          cameramodel;
+                                                                                    private     String          photographer;
 
     public Picture(
         String          path,

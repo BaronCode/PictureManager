@@ -27,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -89,7 +91,7 @@ public class ImageEdit {
         } else {
             logger.warn("Something went wrong while deleting file {}", p.getPath());
         }
-        return "cn/dashboard";
+        return "redirect:/cn/dashboard";
     }
     
     @GetMapping( "/edit")
@@ -126,7 +128,8 @@ public class ImageEdit {
     @ResponseBody
     public Map<String, String> upload(
             @CookieValue(name = "jwt") String jwt,
-            @RequestPart(value = "file") MultipartFile file
+            @RequestPart(value = "file") MultipartFile file,
+            @RequestPart(value = "photographer") String photographer
     ) {
         String email = jwtService.extractUserMail(jwt);
         User current = userService.findByEmail(email);
@@ -135,6 +138,7 @@ public class ImageEdit {
         if (!checkPermissions(privileges, new char[]{'o', 's', 'w'})) {
             throw new AccessDeniedException("Access denied: user has not enough privileges!");
         }
+
 
         if (file.getOriginalFilename() != null && file.getOriginalFilename().endsWith(".zip")) {
             List<MultipartFile> files = new ArrayList<>();
@@ -156,15 +160,24 @@ public class ImageEdit {
                 logger.error("Error while unwrapping zip file!");
             }
 
-            files.forEach(f->pictureService.addPicture(handleFile(f)));
+            files.forEach(f->{
+                Picture p = handleFile(f);
+                if (p != null) {
+                    p.setPhotographer(photographer);
+                    pictureService.addPicture(p);
+                }
+            });
             return Map.of("redirect","/cn/dashboard");
         } else {
             Picture p = handleFile(file);
             if (p == null) {
                 throw new ImageProcessingException("An error happened while processing the image");
+            } else {
+                p.setPhotographer(photographer);
+                pictureService.addPicture(p);
             }
 
-            pictureService.addPicture(p);
+
             return Map.of("redirect","/cn/i/edit?pic-id=".concat(String.valueOf(p.getId())));
         }
     }
@@ -175,20 +188,30 @@ public class ImageEdit {
             if (file.getOriginalFilename()==null) {
                 throw new ImageProcessingException("Original file has no name!");
             }
-            File saved = new File(Settings.get("output")
+            String path = Settings.get("output")
                     .concat(
                             file
-                            .getOriginalFilename()
-                            .substring(
-                                file
-                                .getOriginalFilename()
-                                .lastIndexOf(File.separator)+1)));
+                                    .getOriginalFilename()
+                                    .substring(
+                                            file.
+                                                    getOriginalFilename()
+                                                    .lastIndexOf(File.separator)+1
+                                    )
+                    );
+
+            if (Files.exists(Path.of(path))) {
+                return null;
+            }
+
+            File saved = new File(path);
             file.transferTo(saved);
 
-            return PictureBuilder.buildByFile(saved, true, Settings.get("output"));
+            return PictureBuilder.buildByFile(saved, true, Settings.get("output"), pictureService);
 
         } catch (IOException e) {
             throw new ImageProcessingException("An error happened while transfering temporary image file");
+        } catch (com.drew.imaging.ImageProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 

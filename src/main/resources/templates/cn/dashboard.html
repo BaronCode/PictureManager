@@ -13,10 +13,10 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css">
 
-        <script>
-            /*$(document).ready(function(){
-                const rows = $('#pictures div[id^="p-"]')
-                const rowsShown = 10;
+        <script th:inline="javascript">
+            const rowsShown = parseInt([[${maxImagesRow}]], 10)
+            /*      GRIDVIEW        */
+            function gridViewInitial(rows) {
                 const rowsTotal = rows.length;
                 const numPages = rowsTotal / rowsShown;
                 for(i = 0;i < numPages;i++) {
@@ -24,9 +24,11 @@
                     $('#pnav').append('<a class="table-pg-s ib b-1-do" href="#pictures" rel="'+i+'">'+pageNum+'</a> ');
                 }
 
+                $.each($(rows), function () {
+                    $(this).addClass("n")
+                })
 
-                rows.hide();
-                rows.slice(0, rowsShown).show();
+                rows.slice(0, rowsShown).removeClass("n");
                 $('#pnav a:first').addClass('active');
                 $('#pnav a').bind('click', function(){
 
@@ -35,25 +37,50 @@
                     let currPage = $(this).attr('rel');
                     let startItem = currPage * rowsShown;
                     let endItem = startItem + rowsShown;
-                    $(rows).css('opacity','0.0').hide().slice(startItem, endItem).css("display", "flex").animate({opacity:1}, 300);
+                    $(rows)/*.css('opacity','0.0')*/.addClass("n").slice(startItem, endItem).removeClass("n")/*.animate({opacity:1}, 300)*/;
                 });
-            });*/
-        </script>
+            }
 
-        <script th:inline="javascript">
-            let catsMap = [[${categories}]]
-            const cats = catsMap.map(i => { return { name: i.name, id: i.id }})
+            function gridViewUpdate(rows) {
+                const rowsTotal = rows.length;
+                const numPages = rowsTotal / rowsShown;
+                const pictureNavigator = $('#pnav')
+
+                for(i = 0;i < numPages;i++) {
+                    let pageNum = i + 1;
+
+                    pictureNavigator.append('<a class="table-pg-s ib b-1-do" href="#pictures" rel="'+i+'">'+pageNum+'</a> ');
+                }
+
+                $.each($(rows), function () {
+                    $(this).addClass("n")
+                })
+
+                rows.slice(0, rowsShown).removeClass("n");
+                $('#pnav a:first').addClass('active');
+                $('#pnav a').bind('click', function(){
+
+                    $('#pnav a').removeClass('active');
+                    $(this).addClass('active');
+                    let currPage = $(this).attr('rel');
+                    let startItem = currPage * rowsShown;
+                    let endItem = startItem + rowsShown;
+                    $(rows)/*.css('opacity','0.0')*/.addClass("n").slice(startItem, endItem).removeClass("n")/*.animate({opacity:1}, 300)*/;
+                });
+            }
 
             $(document).ready(function () {
-                const hhgt = $('#header').css('height')
-                const fhgt = $('#footer').css('height')
-                //$('#hrepdiv').css('height', hhgt)
-                $('#frepdiv').css('height', fhgt)
+                gridViewInitial($('#pictures div[id^="p-"]'))
             })
-
         </script>
+
         <script th:inline="javascript">
+            /*      TAGS SEARCH     */
             $(document).ready(function () {
+                const images = [[${imageCategoryMap}]]
+                let catsMap = [[${categories}]]
+                const cats = catsMap.map(i => { return { name: i.name, id: i.id }})
+
                 const res = $('#categories-results')
                 const $input = $('input#categories-input')
                 let tags = []
@@ -103,24 +130,9 @@
                             updateHidden()
                         }
                     } else if (e.key === 'Enter' && $input.val() === '') {
-                        console.log("fires")
                         const shownDivs = $('div[id^="p-"]');
                         if (tags.length !== 0) {
-
-                            const images = [[${imageCategoryMap}]]
-/*
-                            $.each($(divs), function () {
-                                for (let key of Object.keys(images)) {
-                                    let divid = this.id.split("-")[1]
-
-                                    if (!(Object.keys(images).includes(divid))) {
-                                        $(this).addClass("n")
-                                    }
-                                }
-                            })*/
-
-
-                            const tagsIds = []
+                            let tagsIds = []
                             let checker = (original, target) => target.every(value => original.includes(value))
                             Object.keys(tags).forEach(t => tagsIds.push(tags[t]["id"].toString()))
 
@@ -141,11 +153,15 @@
                                     $("#" + this.id + " > .ph-controls button.gallery").removeAttr("data-fancybox")
                                 }
                             })
+                            $('#pnav').empty()
+                            gridViewUpdate($('#pictures div[id^="p-"]:not(div[id^="p-"].n)'))
                         } else {
                             $.each($(shownDivs), function () {
                                 $(this).removeClass("n")
                                 $("#" + this.id + " > .ph-controls button.gallery").attr("data-fancybox", "gallery")
                             })
+                            $('#pnav').empty()
+                            gridViewUpdate($('#pictures div[id^="p-"]'))
                         }
                     }
                 }
@@ -189,26 +205,32 @@
                 })
             })
         </script>
+
         <script>
-            $(document).ready(function () {
+            /*      BUTTONS         */
+            function setControlsGrid() {
                 const size = $(".ph-controls button").length/$(".picdiv").length
                 $(".ph-controls").addClass("g-"+size)
-            })
+            }
+
+            function setHoverStyling() {
+                $(".ph-controls button").hover(
+                        function () {
+                            const parent = $(this).parent()
+                            $("#" + parent.attr("id") + " button").addClass("tdo")
+                            $(this).removeClass("tdo")
+                        },
+                        function () {
+                            const parent = $(this).parent()
+                            $("#" + parent.attr("id") + " button").removeClass("tdo")
+                        }
+                )
+            }
 
             $(document).ready(function () {
-                $(".ph-controls button").hover(
-                    function () {
-                        const parent = $(this).parent()
-                        $("#"+ parent.attr("id") + " button").addClass("tdo")
-                        $(this).removeClass("tdo")
-                    },
-                    function () {
-                        const parent = $(this).parent()
-                        $("#"+ parent.attr("id") + " button").removeClass("tdo")
-                    }
-                )
+                setControlsGrid()
+                setHoverStyling()
             })
-
         </script>
     </head>
     <body>
@@ -232,12 +254,13 @@
 
                         </div>
                     </div>
+                    <div id="pnav" class="tw w-75"></div>
                 </div>
                 <div class="ffc w-25">
                     <div class="tb p-s-2 w-100 mt-10">
                         <div class="w-100 p-2" id="search">
                             <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
-                            <form id="tagsForm" method="get" class="vhdn"><!--th:action="@{/cn/dashboard/submitSearchQuery}"-->
+                            <form id="tagsForm" method="get" class="vhdn">
                                 <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
                             </form>
                             <div id="categories-results" class="w-100 vhdn p-b-0"></div>
@@ -271,7 +294,7 @@
                     </div>
                 </div>
             </div>
-            <div id="pnav" style="gap: 1%" class="tw w-75 m-a"></div>
+
         </main>
         <div th:replace="~{fragments/footer :: footer}"></div>
 
