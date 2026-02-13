@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Contacts</title>
+        <meta charset="utf-8">
+        <meta name="author" content="Angelo">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+        <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
+        <link rel="shortcut icon" th:href="@{/imgs/logo.png}" type="image/x-icon">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+
+    </head>
+    <body>
+        <div class="bg-dark-orange">
+            <div th:replace="~{fragments/header :: header}"></div>
+            <div id="hrepdiv"></div>
+        </div>
+        <main class="mt-10 mb-10 p-s-2 w-100 bg-light-orange">
+            <div class="tb ffr">
+                <div class="ffr w-100">
+                    <div class="ffc w-50" style="font-weight: normal">
+                        <h1>
+                            Contact us!
+                        </h1>
+                        <div class="mt-5">
+                            <div class="ffr">
+                                <i class="fa fa-envelope w-4vw fa-2x p-s-2 aic jcc" style="display: flex !important;"></i>
+                                &nbsp;
+                                <div class="ffc">
+                                    <p>Organization mail</p>
+                                    <a class="mt-1" th:href="|mailto:${orgMail}|" th:text="${orgMail}"></a>
+                                </div>
+                            </div>
+                            <div class="ffr mt-2">
+                                <i class="fa fa-globe w-4vw fa-2x p-s-2 aic jcc" style="display: flex !important;"></i>
+                                &nbsp;
+                                <div class="ffc">
+                                    <p>Organization website</p>
+                                    <a class="mt-1" th:href="${orgWebsite}" th:text="${orgWebsite}"></a>
+                                </div>
+                            </div>
+                            <div class="ffr mt-2">
+                                <i class="fa fa-location-pin w-4vw fa-2x p-s-2 aic jcc" style="display: flex !important;"></i>
+                                &nbsp;
+                                <div class="ffc">
+                                    <p>Organization office</p>
+                                    <p class="mt-1" th:text="${orgAddress}" style="font-weight: inherit;"></p>
+                                </div>
+                            </div>
+                            <div class="ffr mt-2">
+                                <i class="fa fa-phone w-4vw fa-2x p-s-2 aic jcc" style="display: flex !important;"></i>
+                                &nbsp;
+                                <div class="ffc">
+                                    <p>Organization phone number</p>
+                                    <a class="mt-1" th:href="|tel:${orgPhone}|" th:text="${orgPhone}"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d190.36157859019303!2d11.934489250950264!3d45.57050141293529!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x477ed3d80d23fbe3%3A0xe8fb14d59908c825!2sUfficio%20Turistico%20IAT%20Camposampierese!5e0!3m2!1sit!2sit!4v1770975763570!5m2!1sit!2sit"
+                            class="h-100 w-50" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+
+            </div>
+
+        </main>
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>

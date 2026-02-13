@@ -1,5 +1,7 @@
 package com.picman.picman.Endpoints;
 
+import com.picman.picman.AssignationMgmt.Assignation;
+import com.picman.picman.AssignationMgmt.AssignationRepo;
 import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
 import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
@@ -119,9 +121,42 @@ public class ImageEdit {
         model.addAttribute("pic", picture);
         model.addAttribute("defaultPath", Settings.get("output"));
         model.addAttribute("pictureCategories", pictureCat);
-        model.addAttribute("all", allCategories);
+        model.addAttribute("categories", allCategories);
         model.addAttribute("path", "/ image edit");
         return "cn/i/edit";
+    }
+
+    @PostMapping("/tagedit")
+    @ResponseBody
+    public Map<String, String> tagedit(
+            @CookieValue(name = "jwt") String jwt,
+            @RequestParam("pic-id") String sid,
+            @RequestParam("tag-id") String stagid,
+            @RequestParam("remove") String sremove
+    ) {
+        String email = jwtService.extractUserMail(jwt);
+        User current = userService.findByEmail(email);
+        Set<Character> privileges = current.getPrivileges();
+
+        int id = Integer.parseInt(sid);
+        int tagid = Integer.parseInt(stagid);
+        boolean remove = Boolean.parseBoolean(sremove);
+
+        Picture p = pictureService.getById(id);
+        if (p.isProtection()) {
+            if (!checkPermissions(privileges, new char[]{'o', 's'})) {
+                throw new AccessDeniedException("Access denied: user has not enough privileges!");
+            }
+        }
+        Assignation a = new Assignation(p, categoryService.findById(tagid));
+
+        if (remove) {
+            assignationService.removeAssignation(a);
+        } else {
+            assignationService.addAssignation(a);
+        }
+
+        return Map.of("redirect","/cn/i/edit?pic-id=".concat(String.valueOf(p.getId())));
     }
 
     @PostMapping("/upload")

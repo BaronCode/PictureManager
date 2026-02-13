@@ -19,4 +19,9 @@ public class Assignation {
     @Id	@GeneratedValue(strategy = GenerationType.IDENTITY)                         private 	long 			id;
     @ManyToOne @JoinColumn(name = "picture") @NotNull		                        private     Picture         picture;
     @ManyToOne @JoinColumn(name = "category") @NotNull	                            private     Category        category;
+
+    public Assignation(Picture p, Category c) {
+        picture = p;
+        category = c;
+    }
 }

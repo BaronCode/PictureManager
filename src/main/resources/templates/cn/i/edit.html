@@ -13,6 +13,163 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css">
 
+        <script th:inline="javascript">
+            /*      TAGS SEARCH     */
+            $(document).ready(function () {
+                let catsMap = [[${categories}]]
+                let presentCats = [[${pictureCategories}]]
+
+                console.log(presentCats)
+
+                let catsTemp = catsMap.map(i => {
+                    return { name: i.name, id: i.id }
+                })
+
+                let cats = []
+                catsTemp.forEach(function (i) {
+                    if (!presentCats.some(k => k.name === i.name)) {
+                        cats.push(i)
+                    }
+                })
+
+                console.log(cats)
+
+                const res = $('#categories-results')
+                const $input = $('input#categories-input')
+                let tags = []
+
+                function updateHidden() {
+                    $('input#hidden-categories-input').val(tags.join(','))
+                }
+
+                function checkValidAndAppend(text) {
+                    const yieldedText = cats.filter(i=>{
+                        return i["name"].toLowerCase().includes(text.toLowerCase())
+                    })
+                    if (yieldedText.length===1 && !tags.includes(yieldedText[0])) {
+                        tags.push(yieldedText[0])
+                        return yieldedText[0]
+                    }
+                }
+
+                function createTag(text) {
+                    if (!text) return;
+                    const res = checkValidAndAppend(text)
+
+                    if (!res) return;
+
+                    let $tag = $('<span class="tag"></span>').text(res["name"]);
+                    $tag.on('click', function () {
+                        // remove tag on click
+                        tags = tags.filter(t => t["name"] !== res["name"]);
+                        $tag.remove();
+                        updateHidden();
+                    });
+
+                    $tag.insertAfter($('#tagsDivBegin'))
+                    if (tags.length === 0) {
+                        $('#tagsDiv').addClass("vhdn")
+                    } else $('#tagsDiv').removeClass("vhdn")
+                    updateHidden()
+                    $input.val('')
+                    $input.focus()
+                }
+
+                function enterOrBackspace($input, e) {
+                    if (e.key === 'Tab' || e.key === ',') {
+                        e.preventDefault()
+                        const v = $input.val().trim();
+                        createTag(v)
+                    } else if (e.key === 'Backspace' && $input.val() === '') {
+                        const $lastTag = $('#tagsDiv').find('span.tag').last();
+                        if ($lastTag.length) {
+                            tags.pop()
+                            if (tags.length === 0) $('#tagsDiv').addClass("vhdn")
+                            $lastTag.remove()
+                            updateHidden()
+                        }
+                    } else if (e.key === 'Enter' && $input.val() === '') {
+                        if (tags.length !== 0) {
+
+                        }
+                    }
+                }
+
+                $input.keydown(function (e) {
+                    if ($(this).val().length>1) {
+                        res.removeClass("vhdn")
+                    }
+                    enterOrBackspace($(this), e)
+                })
+
+                $input.keyup(function () {
+                    const inputval = $(this).val()
+                    res.empty()
+                    if (inputval.length > 1) {
+                        res.removeClass("vhdn")
+                        let filter = cats.filter(i => i["name"].toLowerCase().includes(inputval.toLowerCase()))
+                        filter = filter.filter(i => !tags.includes(i))
+                        if (filter.length===0) {
+                            res.append('<p class="no-result">Nessun risultato</p>')
+                        } else {
+                            filter.forEach(f => {res.append('<p class="result" tabindex="' + (filter.indexOf(f)+1) + '">' + f["name"] + '</p>')})
+                            $("p.result[tabindex='1']").attr("autofocus", "true")
+                            // For future implementation of result navigability
+                        }
+                    } else {
+                        res.addClass("vhdn")
+                        $(this).removeClass('p-b-0')
+                    }
+
+                })
+                $('div').on('click', '> p.result', function () {
+                    $input.val($(this).text())
+                    res.empty()
+                    enterOrBackspace($input, {
+                        key: 'Tab', preventDefault: () => {
+                        }
+                    })
+                    $input.empty()
+                    res.addClass("vhdn")
+                })
+            })
+            $(document).ready(function () {
+                $(".present-tag").on({
+                    mouseenter: function () {
+                        $("#" + this.id + " ~ .add-overlay").removeClass("vhdn").addClass("striped-overlay")
+                    },
+                    mouseleave: function () {
+                        $("#" + this.id + " ~ .add-overlay").addClass("vhdn").removeClass("striped-overlay")
+                    }
+                })
+            })
+            $(document).ready(function () {
+                const fd = new FormData()
+                fd.append("pic-id", $("img.result-picture").attr("alt"))
+
+                $("[id^=remove-]").on("click", function () {
+                    fd.append("tag-id", this.id.split("-")[1])
+                    fd.append("remove", "true")
+
+                    const returnPolicy = async () => {
+                        let uploadReturnPolicy = await fetch("/cn/i/tagedit", {
+                            method: "POST",
+                            body: fd,
+                            credentials: "same-origin"
+                        })
+
+                        return await uploadReturnPolicy.json();
+                    }
+
+                    const getReturn = async () => {
+                        let jsonData = await returnPolicy();
+                        window.location.href = jsonData.redirect
+                    }
+
+                    getReturn()
+                })
+            })
+        </script>
     </head>
     <body>
         <div class="bg-dark-orange">
@@ -76,11 +233,23 @@
             <hr style="margin: 2vh 2vw;">
             <div class="p-s-2 w-100">
                 <div class="w-100 tc"><p>Tags section</p></div>
-                <div class="w-100 ffc mt-5">
-                    <div class="w-100 ffr fw tw" >
-                        <div th:if="${pictureCategories.size()}!=0" th:each="pc, i: ${pictureCategories}" style="border-radius: 1vh !important;" class="ffr aic bg-dark-orange tag-edit b-r-c-3 m-s-1">
-                            <div class="w-75 aic f jcc h-100"><span th:text="${pc.getName()}"></span></div>
-                            <div class="w-25 f jcc"><i class="fa fa-trash"></i></div>
+                <div class="ffc w-100 mt-5">
+                    <div class="tb p-s-2 w-100">
+                        <div class="w-100" id="search">
+                            <input id="categories-input" type="search" class="w-100 p-1" placeholder="Add a category...">
+                            <form id="tagsForm" method="get" class="vhdn">
+                                <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
+                            </form>
+                            <div id="categories-results" class="w-100 vhdn p-0 p-b-1"></div>
+                            <div id="tagsDiv" class="p-s-1 p-b-1 vhdn"><i id="tagsDivBegin"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-100 ffc mt-5 p-s-2">
+                    <div class="w-100 ffr fw tw">
+                        <div th:if="${pictureCategories.size()}!=0" th:each="pc, i: ${pictureCategories}" class="f tag-edit aic bg-dark-orange b-r-1 prlt" style="border: 1px solid black">
+                            <span class="z-3 present-tag" th:id="|remove-${pc.getId()}|" th:text="${pc.getName()}"></span>
+                            <div class="vhdn pabs w-100 h-100 add-overlay"></div>
                         </div>
                         <div th:unless="${pictureCategories.size()}!=0" class="tb w-100 tc"><p>No tags for this picture</p></div>
                     </div>

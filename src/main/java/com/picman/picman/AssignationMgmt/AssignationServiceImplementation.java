@@ -25,6 +25,16 @@ public class AssignationServiceImplementation implements AssignationService {
     }
 
     @Override
+    public void addAssignation(Assignation a) {
+        assignationRepo.save(a);
+    }
+
+    @Override
+    public void removeAssignation(Assignation a) {
+        assignationRepo.deleteByPair(a.getPicture(), a.getCategory());
+    }
+
+    @Override
     public List<Picture> getAssignationsByCategoryList(int[] categories) {
         return assignationRepo.getAssignationsByCategoryList(categories);
     }

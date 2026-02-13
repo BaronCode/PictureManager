@@ -10,6 +10,10 @@ public interface AssignationService {
 
     List<PicturesCategories> getAssignationsGroup();
 
+    void addAssignation(Assignation a);
+
+    void removeAssignation(Assignation a);
+
     List<Picture> getAssignationsByCategoryList(int[] categories);
 
     List<Category> getCategoriesByPictureId(long id);

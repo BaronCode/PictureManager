@@ -1,12 +1,10 @@
 package com.picman.picman.Endpoints;
 
-import com.picman.picman.Exceptions.AccessDeniedException;
-import com.picman.picman.Exceptions.InvalidFormParamException;
-import com.picman.picman.Exceptions.NotImplementedException;
-import com.picman.picman.Exceptions.EntityNotFoundException;
+import com.picman.picman.Exceptions.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @ControllerAdvice
 public class CentralizedHttpStatusHandler {
@@ -16,10 +14,19 @@ public class CentralizedHttpStatusHandler {
         model.addAttribute("path", "/ work in progress");
         return "wip";
     }
-    @ExceptionHandler(AccessDeniedException.class)
-    public String _403Handler(Model model) {
+
+    @ExceptionHandler(InvalidEntryPointException.class)
+    public String _401Handler(InvalidEntryPointException ex, Model model) {
         model.addAttribute("path", "/ access denied!");
-        return "wip";
+        model.addAttribute("error", ex.getMessage());
+        return "error";
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public String _403Handler(AccessDeniedException ex, Model model) {
+        model.addAttribute("path", "/ access denied!");
+        model.addAttribute("error", ex.getMessage());
+        return "error";
     }
     @ExceptionHandler(EntityNotFoundException.class)
     public String _404EntityHandler(EntityNotFoundException ex, Model model) {
@@ -32,7 +39,7 @@ public class CentralizedHttpStatusHandler {
     public String _422Handler(InvalidFormParamException ex, Model model) {
         model.addAttribute("path", "/ invalid form");
         model.addAttribute("class", ex.getOriginClass());
-        model.addAttribute("class", ex.getMessage());
+        model.addAttribute("error", ex.getMessage());
         return "error";
     }
 }

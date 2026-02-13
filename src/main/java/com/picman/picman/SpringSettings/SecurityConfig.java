@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -46,18 +47,19 @@ public class SecurityConfig {
                         // PAY MUCH ATTENTION TO URLs
 
                         // General mappings and resources
-                        .requestMatchers("/**", "/u/**").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/bootstrap/**", "/imgs/**").permitAll()
+                        .requestMatchers("/u/**", "/error", "/wip", "/contacts", "/pricing").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/bootstrap/**", "/imgs/**", "/favicon.ico").permitAll()
+
+                        // Error endpoints
+                        .requestMatchers("/_401", "/_403").permitAll()
 
                         // Content access
                         .requestMatchers("/images/**").permitAll()
-                        .requestMatchers("/cn/**").permitAll()
                         .requestMatchers("/cn/dashboard").permitAll()
-                        .requestMatchers("/cn/dashboard/submitSearchQuery").permitAll()
                         .requestMatchers("/cn/home").authenticated()
 
                         // Images management
-                        .requestMatchers( "/cn/i/edit", "/cn/i/upload").hasAnyAuthority("o", "w")
+                        .requestMatchers( "/cn/i/edit","/cn/i/tagedit", "/cn/i/upload").hasAnyAuthority("o", "w")
                         .requestMatchers( "/cn/i/delete").hasAnyAuthority("o", "d")
 
                         // Categories management
@@ -73,7 +75,10 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
-                .exceptionHandling(exception -> exception.accessDeniedHandler(accessDeniedHandler()))
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler())
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                )
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -117,6 +122,16 @@ public class SecurityConfig {
             logger.warn("[SECURITY] Access denied for {} {}: {}", request.getMethod(), request.getRequestURI(),
                     accessDeniedException.getMessage());
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+        };
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authenticationException) -> {
+            logger.warn("[SECURITY] Unauthenticated access for {} {}: {}", request.getMethod(), request.getRequestURI(),
+                    authenticationException.getMessage());
+            request.setAttribute("exceptionMessage", "Must be authenticated to access this page!");
+            request.getRequestDispatcher("/_401").forward(request, response);
         };
     }
 

@@ -2,7 +2,9 @@ package com.picman.picman.AssignationMgmt;
 
 import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.PicturesMgmt.Picture;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -23,4 +25,9 @@ public interface AssignationRepo extends JpaRepository<Assignation, Integer> {
 
     @Query(value = "select a.picture, string_agg(a.category::character varying, ',') as categorieslist from assignations a group by a.picture", nativeQuery = true)
     List<PicturesCategories> getAssignationsGroup();
+
+    @Modifying
+    @Transactional
+    @Query("delete from Assignation a where a.picture = ?1 and a.category = ?2")
+    void deleteByPair(Picture pid, Category cid);
 }

@@ -49,6 +49,9 @@ textarea {
     background-color: transparent;
 }
 
+.w-4vw {
+    width: 4vw;
+}
 .w-0 {
     width: 0;
 }
@@ -76,8 +79,14 @@ textarea {
 .m-s-1 {
     margin: 0 1vw;
 }
+.p-0 {
+    padding: 0 !important;
+}
 .p-b-0 {
     padding-bottom: 0 !important;
+}
+.p-b-1 {
+    padding-bottom: 1% !important;
 }
 .p-1 {
     padding: 1%;
@@ -173,6 +182,9 @@ textarea {
 }
 .mt-2 {
     margin-top: 2vh;
+}
+.mt-1 {
+    margin-top: 1vh;
 }
 .mb-10 {
     margin-bottom: 10vh;
@@ -326,12 +338,10 @@ img.result-picture {
 .data p:not(.data p:last-child) {
     margin-bottom: 2vh;
 }
-.tag-edit div:first-child {
-    padding: 1vw;
-    border-right: 1px solid black;
-}
-.tag-edit div:last-child {
-    padding: 0 2vw;
+.tag-edit {
+    --padding: .5%;
+    margin-right: .5%;
+    margin-left: .5%;
 }
 .tag-edit:first-child {
     margin-left: 0;
@@ -413,4 +423,20 @@ a.table-pg-s.active {
 }
 #overlay input {
     font-family: inherit;
+}
+.present-tag {
+    color: white;
+    padding: 3px 8px;
+    margin: 2px;
+    border-radius: 3px;
+    display: inline-block;
+    cursor: pointer;
+    font-weight: normal;
+}
+.striped-overlay {
+    background: repeating-linear-gradient( -45deg, transparent, transparent 5px, red 5px, red 10px );
+}
+.add-overlay {
+    border-radius: 3px;
+    overflow: hidden;
 }

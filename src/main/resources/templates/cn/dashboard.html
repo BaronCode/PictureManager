@@ -90,7 +90,7 @@
                 }
 
                 function checkValidAndAppend(text) {
-                    const yieldedText = cats.filter(i=>i["name"].toLowerCase().includes(text))
+                    const yieldedText = cats.filter(i=>i["name"].toLowerCase().includes(text.toLowerCase()))
                     if (yieldedText.length===1 && !tags.includes(yieldedText[0])) {
                         tags.push(yieldedText[0])
                         return yieldedText[0]
@@ -254,7 +254,7 @@
 
                         </div>
                     </div>
-                    <div id="pnav" class="tw w-75"></div>
+                    <div id="pnav" class="tw w-75 p-s-2"></div>
                 </div>
                 <div class="ffc w-25">
                     <div class="tb p-s-2 w-100 mt-10">
