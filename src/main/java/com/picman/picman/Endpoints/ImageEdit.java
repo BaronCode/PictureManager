@@ -1,7 +1,6 @@
 package com.picman.picman.Endpoints;
 
 import com.picman.picman.AssignationMgmt.Assignation;
-import com.picman.picman.AssignationMgmt.AssignationRepo;
 import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
 import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
@@ -61,7 +60,7 @@ public class ImageEdit {
 
     @GetMapping("/")
     public String root() {
-        return "cn/dashboard";
+        return "galley";
     }
 
     @GetMapping("/delete")
@@ -139,7 +138,6 @@ public class ImageEdit {
         Set<Character> privileges = current.getPrivileges();
 
         int id = Integer.parseInt(sid);
-        int tagid = Integer.parseInt(stagid);
         boolean remove = Boolean.parseBoolean(sremove);
 
         Picture p = pictureService.getById(id);
@@ -148,12 +146,18 @@ public class ImageEdit {
                 throw new AccessDeniedException("Access denied: user has not enough privileges!");
             }
         }
-        Assignation a = new Assignation(p, categoryService.findById(tagid));
+
 
         if (remove) {
+            int tagid = Integer.parseInt(stagid);
+            Assignation a = new Assignation(p, categoryService.findById(tagid));
             assignationService.removeAssignation(a);
         } else {
-            assignationService.addAssignation(a);
+            int[] tags = Arrays.stream(stagid.split(",")).mapToInt(Integer::parseInt).toArray();
+            for (int i : tags) {
+                Assignation a = new Assignation(p, categoryService.findById(i));
+                assignationService.addAssignation(a);
+            }
         }
 
         return Map.of("redirect","/cn/i/edit?pic-id=".concat(String.valueOf(p.getId())));

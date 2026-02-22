@@ -19,8 +19,6 @@
                 let catsMap = [[${categories}]]
                 let presentCats = [[${pictureCategories}]]
 
-                console.log(presentCats)
-
                 let catsTemp = catsMap.map(i => {
                     return { name: i.name, id: i.id }
                 })
@@ -32,14 +30,14 @@
                     }
                 })
 
-                console.log(cats)
-
                 const res = $('#categories-results')
                 const $input = $('input#categories-input')
                 let tags = []
 
                 function updateHidden() {
-                    $('input#hidden-categories-input').val(tags.join(','))
+                    const tagsIds = []
+                    Object.keys(tags).forEach(t => tagsIds.push(tags[t]["id"].toString()))
+                    $('input#hidden-categories-input').val(tagsIds.join(','))
                 }
 
                 function checkValidAndAppend(text) {
@@ -81,7 +79,7 @@
                         const v = $input.val().trim();
                         createTag(v)
                     } else if (e.key === 'Backspace' && $input.val() === '') {
-                        const $lastTag = $('#tagsDiv').find('span.tag').last();
+                        const $lastTag = $('#tagsDiv').find('span.tag').first();
                         if ($lastTag.length) {
                             tags.pop()
                             if (tags.length === 0) $('#tagsDiv').addClass("vhdn")
@@ -90,6 +88,27 @@
                         }
                     } else if (e.key === 'Enter' && $input.val() === '') {
                         if (tags.length !== 0) {
+                            const fd = new FormData()
+                            fd.append("pic-id", $("img.result-picture").attr("alt"))
+                            fd.append("tag-id", $('input#hidden-categories-input').val())
+                            fd.append("remove", "false")
+
+                            const returnPolicy = async () => {
+                                let uploadReturnPolicy = await fetch("/cn/i/tagedit", {
+                                    method: "POST",
+                                    body: fd,
+                                    credentials: "same-origin"
+                                })
+
+                                return await uploadReturnPolicy.json();
+                            }
+
+                            const getReturn = async () => {
+                                let jsonData = await returnPolicy();
+                                window.location.href = jsonData.redirect
+                            }
+
+                            getReturn()
 
                         }
                     }
@@ -170,14 +189,30 @@
                 })
             })
         </script>
+        <script>
+            $(document).ready(function () {
+                const className = "fa-regular";
+
+                $("i[id$='-nav'].fa-circle").on("click", function () {
+                    if (!this.classList.contains(className)) {
+                        $("i.fa-circle.fa-regular").removeClass(className)
+                        $(this).addClass(className)
+                        const id = this.id.split("-")[0];
+                        $("div[id$=-data]").addClass("vhdn")
+                        $("div#" + id + "-data").removeClass("vhdn")
+                    }
+                })
+            })
+        </script>
     </head>
     <body>
         <div class="bg-dark-orange">
             <div th:replace="~{fragments/header :: header}"></div>
             <div id="hrepdiv" class="bg-transparent"></div>
         </div>
+        <div class="main-spacer-5"></div>
         <main>
-            <div class="p-2 mt-5 w-100">
+            <div class="p-2 w-100">
                 <div class="w-100 ffr">
                     <div class="w-50">
                         <a th:href="|/images/${pic.getPath()}.${pic.getExt()}|">
@@ -199,63 +234,87 @@
                             </div>
                         </div>
                         <hr style="margin: 2vh 0;">
-                        <div class="w-100 tc"><p>Image metadata</p></div>
-                        <div class="w-100 ffr mt-5">
-                            <div class="w-50 tb data">
-                                <p>Size</p>
-                                <p>Shot on</p>
-                                <p>Height</p>
-                                <p>Width</p>
-                                <p>Aperture</p>
-                                <p>Exposure time</p>
-                                <p>ISO speed</p>
-                                <p>Focal length</p>
-                                <p>Camera model</p>
-                                <p>Photographer</p>
+                        <div class="w-100" id="tags-data">
+                            <div class="w-100">
+                                <div class="w-100 tc"><p>Tags section</p></div>
+                                <div class="ffr w-100 mt-5">
+
+<!--                                    <div style="width: 90%;" class="tb ffc">
+                                        <div class="w-100" id="search">
+                                            <input id="categories-input" type="search" class="w-100 p-2" placeholder="Add a category...">
+                                            <form id="tagsForm" method="get" class="vhdn">
+                                                <input id="hidden-categories-input" name="hidden-tags" type="hidden" class="vhdn" value="">
+                                            </form>
+                                            <div id="categories-results" class="w-100 p-s-1-im p-b-1 vhdn"></div>
+                                            <div id="tagsDiv" class="p-s-2 p-b-1 vhdn"><i id="tagsDivBegin"></i></div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-dark-orange f b-r-2 aic jcc" style="width: 10%;margin-left: 2%">
+                                        <i class="fa fa-plus tw"></i>
+                                    </div>-->
+
+                                    <div class="tb w-100">
+                                        <div class="w-100" id="search">
+                                            <input id="categories-input" type="search" class="w-100 p-2" placeholder="Add a category...">
+                                            <form id="tagsForm" method="get" class="vhdn">
+                                                <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
+                                            </form>
+                                            <div id="categories-results" class="w-100 vhdn p-s-1-im p-b-1"></div>
+                                            <div id="tagsDiv" class="p-s-2 p-b-1 vhdn"><i id="tagsDivBegin"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="w-100 ffc mt-5">
+                                    <div class="w-100 ffr fw tw">
+                                        <div th:if="${pictureCategories.size()}!=0" th:each="pc, i: ${pictureCategories}" class="f tag-edit aic bg-dark-orange b-r-1 prlt" style="border: 1px solid black">
+                                            <span class="z-3 present-tag" th:id="|remove-${pc.getId()}|" th:text="${pc.getName()}"></span>
+                                            <div class="vhdn pabs w-100 h-100 add-overlay"></div>
+                                        </div>
+                                        <div th:unless="${pictureCategories.size()}!=0" class="tb w-100 tc"><p>No tags for this picture</p></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="w-50 tb te data">
-                                <p th:text="${pic.getSizekb() != null ? pic.getSizekb() + ' KB' : 'No data'}"></p>
-                                <p th:text="${pic.getFormattedDate(pic.getShotat()) ?: 'No data'}"></p>
-                                <p th:text="${pic.getHeight() != null ? pic.getHeight() + ' px' : 'No data'}"></p>
-                                <p th:text="${pic.getWidth() != null ? pic.getWidth() + ' px' : 'No data'}"></p>
-                                <p th:text="${pic.getAperture() ?: 'No data'}"></p>
-                                <p th:if="${pic.getExposureden()!=1}" th:text="${(pic.getExposurenum() != null && pic.getExposureden() != null) ? pic.getExposurenum()+'/'+pic.getExposureden()+'s' : 'No data'}"></p>
-                                <p th:unless="${pic.getExposureden()!=1}" th:text="${(pic.getExposurenum() != null && pic.getExposureden() != null) ? pic.getExposurenum()+'s' : 'No data'}"></p>
-                                <p th:text="${pic.getIso() ?: 'No data'}"></p>
-                                <p th:text="${pic.getFocallength() != null ? pic.getFocallength() + ' mm' : 'No data'}"></p>
-                                <p th:text="${pic.getCameramodel() ?: 'No data'}"></p>
-                                <p th:text="${pic.getPhotographer() ?: 'No data'}"></p>
+                        </div>
+                        <div class="w-100 vhdn" id="technical-data">
+                            <div class="w-100 tc"><p>Image metadata</p></div>
+                            <div class="w-100 ffr mt-5">
+                                <div class="w-50 tb data">
+                                    <p>Size</p>
+                                    <p>Shot on</p>
+                                    <p>Height</p>
+                                    <p>Width</p>
+                                    <p>Aperture</p>
+                                    <p>Exposure time</p>
+                                    <p>ISO speed</p>
+                                    <p>Focal length</p>
+                                    <p>Camera model</p>
+                                    <p>Photographer</p>
+                                </div>
+                                <div class="w-50 tb te data">
+                                    <p th:text="${pic.getSizekb() != null ? pic.getSizekb() + ' KB' : 'No data'}"></p>
+                                    <p th:text="${pic.getFormattedDate(pic.getShotat()) ?: 'No data'}"></p>
+                                    <p th:text="${pic.getHeight() != null ? pic.getHeight() + ' px' : 'No data'}"></p>
+                                    <p th:text="${pic.getWidth() != null ? pic.getWidth() + ' px' : 'No data'}"></p>
+                                    <p th:text="${pic.getAperture() ?: 'No data'}"></p>
+                                    <p th:if="${pic.getExposureden()!=1}" th:text="${(pic.getExposurenum() != null && pic.getExposureden() != null) ? pic.getExposurenum()+'/'+pic.getExposureden()+'s' : 'No data'}"></p>
+                                    <p th:unless="${pic.getExposureden()!=1}" th:text="${(pic.getExposurenum() != null && pic.getExposureden() != null) ? pic.getExposurenum()+'s' : 'No data'}"></p>
+                                    <p th:text="${pic.getIso() ?: 'No data'}"></p>
+                                    <p th:text="${pic.getFocallength() != null ? pic.getFocallength() + ' mm' : 'No data'}"></p>
+                                    <p th:text="${pic.getCameramodel() ?: 'No data'}"></p>
+                                    <p th:text="${pic.getPhotographer() ?: 'No data'}"></p>
+                                </div>
                             </div>
+                        </div>
+                        <div class="w-100 f jcc mt-a">
+                            <i class="fa fa-circle fa-regular" id="tags-nav"></i>
+                            <i class="fa fa-circle" id="technical-nav"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <hr style="margin: 2vh 2vw;">
-            <div class="p-s-2 w-100">
-                <div class="w-100 tc"><p>Tags section</p></div>
-                <div class="ffc w-100 mt-5">
-                    <div class="tb p-s-2 w-100">
-                        <div class="w-100" id="search">
-                            <input id="categories-input" type="search" class="w-100 p-1" placeholder="Add a category...">
-                            <form id="tagsForm" method="get" class="vhdn">
-                                <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">
-                            </form>
-                            <div id="categories-results" class="w-100 vhdn p-0 p-b-1"></div>
-                            <div id="tagsDiv" class="p-s-1 p-b-1 vhdn"><i id="tagsDivBegin"></i></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="w-100 ffc mt-5 p-s-2">
-                    <div class="w-100 ffr fw tw">
-                        <div th:if="${pictureCategories.size()}!=0" th:each="pc, i: ${pictureCategories}" class="f tag-edit aic bg-dark-orange b-r-1 prlt" style="border: 1px solid black">
-                            <span class="z-3 present-tag" th:id="|remove-${pc.getId()}|" th:text="${pc.getName()}"></span>
-                            <div class="vhdn pabs w-100 h-100 add-overlay"></div>
-                        </div>
-                        <div th:unless="${pictureCategories.size()}!=0" class="tb w-100 tc"><p>No tags for this picture</p></div>
-                    </div>
-                </div>
-            </div>
+
         </main>
+        <div class="main-spacer-5"></div>
         <div th:replace="~{fragments/footer :: footer}"></div>
 
         <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>

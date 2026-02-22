@@ -55,7 +55,7 @@ public class SecurityConfig {
 
                         // Content access
                         .requestMatchers("/images/**").permitAll()
-                        .requestMatchers("/cn/dashboard").permitAll()
+                        .requestMatchers("/cn/gallery").permitAll()
                         .requestMatchers("/cn/home").authenticated()
 
                         // Images management

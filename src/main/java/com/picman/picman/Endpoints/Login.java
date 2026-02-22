@@ -1,5 +1,6 @@
 package com.picman.picman.Endpoints;
 
+import com.picman.picman.Exceptions.AccessDeniedException;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringAuthentication.LoginResponse;
 import org.slf4j.Logger;
@@ -12,9 +13,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("u/")
 public class Login {
     private final Logger logger;
@@ -28,7 +30,7 @@ public class Login {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(
+    public String login(
             @RequestParam("email") 	String 		email,
             @RequestParam("password") 	String 		psw
     )
@@ -55,12 +57,10 @@ public class Login {
                     .sameSite("LaX")
                     .build();
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(new LoginResponse(token, jwtService.getJwtExpiration()));
+            return "/cn/home";
         } catch (AuthenticationException e) {
             logger.info("Login unsuccessful");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong email or password");
+            throw new AccessDeniedException("Wrong username or password");
         }
     }
 }

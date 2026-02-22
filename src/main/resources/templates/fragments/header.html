@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <body>
 
         <div th:fragment="header" class="w-100" id="header">
@@ -11,11 +11,11 @@
                 </div>
                 <div class="w-25"></div>
                 <div class="w-25 te tw">
-                    <i class="fa-solid fa-house ichl" th:onclick="|window.location.href='/cn/home'|"></i> <!--Home-->
-                    <i class="fa-solid fa-upload ichl" th:onclick="|window.location.href='/cn/i/upload'|"></i>
-                    <i class="fa-solid fa-list ichl" th:onclick="|window.location.href='/cn/c/categories'|"></i>
-                    <!--/*@thymesVar id="gear" type="java"*/-->
-                    <i th:if="${gear}" class="fa-solid fa-gear ichl"></i>  <!--Admin panel-->
+                    <i sec:authorize="hasAnyAuthority('o', 'w', 'd', 'u', 'r')" class="fa-solid fa-house ichl" th:onclick="|window.location.href='/cn/home'|"></i> <!--Home-->
+                    <i sec:authorize="hasAnyAuthority('o', 'w', 'd')" class="fa-solid fa-upload ichl" th:onclick="|window.location.href='/cn/i/upload'|"></i>
+                    <i sec:authorize="hasAnyAuthority('o', 'w', 'd')" class="fa-solid fa-list ichl" th:onclick="|window.location.href='/cn/c/categories'|"></i>
+                    <i sec:authorize="hasAnyAuthority('o')" class="fa-solid fa-gear ichl"></i>  <!--Admin panel-->
+                    <i sec:authorize="!(isAuthenticated())" class="fa-solid fa-user ichl" th:onclick="|window.location.href='/u/'|"></i>
                 </div>
             </div>
         </div>

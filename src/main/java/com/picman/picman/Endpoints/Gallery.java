@@ -2,13 +2,11 @@ package com.picman.picman.Endpoints;
 
 import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
 import com.picman.picman.AssignationMgmt.PicturesCategories;
-import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
 import com.picman.picman.Exceptions.InvalidTagsResearchException;
 import com.picman.picman.PicturesMgmt.Picture;
 import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
 import com.picman.picman.SpringAuthentication.JwtService;
-import com.picman.picman.SpringSettings.PicmanSettings;
 import com.picman.picman.SpringSettings.Settings;
 import com.picman.picman.UserMgmt.User;
 import com.picman.picman.UserMgmt.UserServiceImplementation;
@@ -28,15 +26,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @Controller
 @RequestMapping("cn/")
-public class Dashboard {
+public class Gallery {
     private final UserServiceImplementation userService;
     private final PictureServiceImplementation pictureService;
     private final CategoryServiceImplementation categoryService;
     private final AssignationServiceImplementation assignationService;
     private final JwtService jwtService;
-    private final Logger logger = LoggerFactory.getLogger(Dashboard.class);
+    private final Logger logger = LoggerFactory.getLogger(Gallery.class);
 
-    public Dashboard(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, AssignationServiceImplementation asi, JwtService js) {
+    public Gallery(UserServiceImplementation usi, PictureServiceImplementation psi, CategoryServiceImplementation csi, AssignationServiceImplementation asi, JwtService js) {
         userService = usi;
         pictureService = psi;
         categoryService = csi;
@@ -81,8 +79,8 @@ public class Dashboard {
         return "cn/home";
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(@CookieValue(name = "jwt", required = false) String jwt, Model model) {
+    @GetMapping("/gallery")
+    public String gallery(@CookieValue(name = "jwt", required = false) String jwt, Model model) {
         Set<Character> privileges;
 
         if (jwt != null) {
@@ -118,12 +116,12 @@ public class Dashboard {
         model.addAttribute("w", privileges.contains('w'));
         model.addAttribute("s", privileges.contains('s'));
         model.addAttribute("r", privileges.contains('r'));
-        return "cn/dashboard";
+        return "cn/gallery";
     }
 
 
     @Deprecated
-    @RequestMapping("/dashboard/submitSearchQuery")
+    @RequestMapping("/gallery/submitSearchQuery")
     public String searchQuery(
             @RequestParam("hidden-tags") String tags,
             Model model
