@@ -7,8 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -47,6 +46,16 @@ public class User {
         if (value) {
             privileges.add(privilege);
         } else privileges.remove(privilege);
+    }
+
+    public boolean hasAuthorities(char... authorities) {
+        List<Character> auth = new ArrayList<>();
+        for (char c : authorities) auth.add(c);
+        return privileges.containsAll(auth);
+    }
+
+    public boolean hasAnyAuthority(char authority) {
+        return true;
     }
 
     @Override

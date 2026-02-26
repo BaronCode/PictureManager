@@ -70,13 +70,14 @@ public class SecurityConfig {
                         .requestMatchers("/cn/home").authenticated()
 
                         // Images management
-                        .requestMatchers( "/cn/i/edit","/cn/i/tagedit", "/cn/i/upload").hasAnyAuthority("o", "w")
-                        .requestMatchers( "/cn/i/delete").hasAnyAuthority("o", "d")
+                        .requestMatchers("/cn/i/**").hasAnyAuthority("o", "s", "w", "d")
+                        .requestMatchers( "/cn/i/edit","/cn/i/tagedit", "/cn/i/upload").hasAnyAuthority("o", "s", "w")
+                        .requestMatchers( "/cn/i/delete").hasAnyAuthority("o", "s", "d")
 
                         // Categories management
-                        .requestMatchers( "/cn/c/**").hasAnyAuthority("o", "w", "d")
-                        .requestMatchers( "/cn/c/create","/cn/c/edit").hasAnyAuthority("o", "w")
-                        .requestMatchers( "/cn/c/delete").hasAnyAuthority("o", "d")
+                        .requestMatchers( "/cn/c/**").hasAnyAuthority("o", "s", "w", "d")
+                        .requestMatchers( "/cn/c/create","/cn/c/edit").hasAnyAuthority("o", "s", "w")
+                        .requestMatchers( "/cn/c/delete").hasAnyAuthority("o", "s", "d")
 
                         // Admin
                         .requestMatchers("/cn/admin/**").hasAnyAuthority("o", "u")
