@@ -1,7 +1,11 @@
 package com.picman.picman.SpringSettings;
 
+import com.picman.picman.LoggingMgmt.Log;
+import com.picman.picman.LoggingMgmt.LogServiceImplementation;
 import com.picman.picman.SpringAuthentication.JwtAuthFilter;
 import com.picman.picman.SpringAuthentication.UserDetailsService;
+import com.picman.picman.UserMgmt.User;
+import com.picman.picman.UserMgmt.UserServiceImplementation;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +18,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -24,6 +30,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -32,11 +39,15 @@ public class SecurityConfig {
 
     private     final   JwtAuthFilter   authFilter;
     private     final   Logger          logger;
+    private     final LogServiceImplementation logService;
+    private     final UserServiceImplementation userService;
 
 
-    public SecurityConfig(JwtAuthFilter authFilter) {
+    public SecurityConfig(JwtAuthFilter authFilter, LogServiceImplementation lsi, UserServiceImplementation usi) {
         this.authFilter = authFilter;
         logger = LoggerFactory.getLogger(this.getClass());
+        logService = lsi;
+        userService = usi;
     }
 
     @Bean
@@ -67,14 +78,22 @@ public class SecurityConfig {
                         .requestMatchers( "/cn/c/create","/cn/c/edit").hasAnyAuthority("o", "w")
                         .requestMatchers( "/cn/c/delete").hasAnyAuthority("o", "d")
 
+                        // Admin
+                        .requestMatchers("/cn/admin/**").hasAnyAuthority("o", "u")
+
                         // Any
-                        .requestMatchers("/h2-console").hasAnyAuthority("o")
+                        .requestMatchers("/h2-console", "/h2-console/**").hasAnyAuthority("o")
 
                         // Deny any other request
                         .anyRequest().denyAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
+/*                .formLogin(login -> login
+                        .loginPage("/u/login")
+                        .loginProcessingUrl("/u/loginsubmit")
+                        .defaultSuccessUrl("/cn/gallery", true)
+                )*/
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(accessDeniedHandler())
                         .authenticationEntryPoint(authenticationEntryPoint())
@@ -119,18 +138,19 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-            logger.warn("[SECURITY] Access denied for {} {}: {}", request.getMethod(), request.getRequestURI(),
-                    accessDeniedException.getMessage());
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User u = userService.findByEmail(auth.getName());
+            Log log = new Log(LocalDateTime.now(), request.getRequestURI(), "SecurityConfig", u, "Access denied");
+            logService.save(log);
+            request.getRequestDispatcher("/_403").forward(request, response);
         };
     }
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authenticationException) -> {
-            logger.warn("[SECURITY] Unauthenticated access for {} {}: {}", request.getMethod(), request.getRequestURI(),
-                    authenticationException.getMessage());
-            request.setAttribute("exceptionMessage", "Must be authenticated to access this page!");
+            Log log = new Log(LocalDateTime.now(), request.getRequestURI(), "SecurityConfig", null, "Unauthenticated access");
+            logService.save(log);
             request.getRequestDispatcher("/_401").forward(request, response);
         };
     }

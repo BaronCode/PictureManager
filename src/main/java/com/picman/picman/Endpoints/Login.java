@@ -3,6 +3,8 @@ package com.picman.picman.Endpoints;
 import com.picman.picman.Exceptions.AccessDeniedException;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringAuthentication.LoginResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -29,10 +31,21 @@ public class Login {
         logger = LoggerFactory.getLogger(Login.class);
     }
 
-    @PostMapping("/login")
+    @GetMapping("/")
+    public String root() {
+        return "u/login";
+    }
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "u/login";
+    }
+
+    @PostMapping("/loginsubmit")
     public String login(
             @RequestParam("email") 	String 		email,
-            @RequestParam("password") 	String 		psw
+            @RequestParam("password") 	String 		psw,
+            HttpServletResponse response
     )
     {
         logger.info("New login request received");
@@ -49,15 +62,16 @@ public class Login {
                 throw new PicmanSettingsDiscrepancyException("Database organization entry does not match with internal settings");
             } */
 
-            ResponseCookie cookie = ResponseCookie.from("jwt", token)
-                    .httpOnly(true)
-                    .secure(false)
-                    .path("/")
-                    .maxAge(jwtService.getJwtExpiration() / 1000)
-                    .sameSite("LaX")
-                    .build();
+            Cookie cookie = new Cookie("jwt", token);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(true);
+            cookie.setPath("/");
+            cookie.setMaxAge((int) (jwtService.getJwtExpiration() / 1000));
+                    //.sameSite("LaX");
 
-            return "/cn/home";
+            response.addCookie(cookie);
+
+            return "redirect:/cn/gallery";
         } catch (AuthenticationException e) {
             logger.info("Login unsuccessful");
             throw new AccessDeniedException("Wrong username or password");

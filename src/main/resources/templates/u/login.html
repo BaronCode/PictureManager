@@ -20,12 +20,12 @@
         <div id="login-screen" class="login-container m-a mt-10 f rounded-3">
             <div class="w-100 m-a">
                 <div class="tw">
-                    <form th:action="@{/u/login}" method="POST">
+                    <form th:action="@{/u/loginsubmit}" method="POST">
                         <h1>PicMan Login</h1>
                         <p>Usa le credenziali fornite per eseguire il login</p>
 
                         <label for="login-email"></label>
-                        <input type="email" name="email" id="login-email" th:name="email" placeholder="mariorossi@organization.org">
+                        <input type="email" name="email" id="login-email" th:name="email" placeholder="jones@organization.org">
                         <div class="p-2"></div>
                         <label for="login-password"></label>
                         <input type="password" name="password" id="login-password" th:name="password" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;&middot;&middot;">
