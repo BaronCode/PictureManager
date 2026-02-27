@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <title>PicMan Dashboard</title>
         <meta charset="utf-8">
@@ -70,14 +70,13 @@
             }
 
             $(document).ready(function () {
-                gridViewInitial($('#pictures div[id^="p-"]'))
+                gridViewInitial($('#pictures div[id^="p-"]:not(.gtm)'))
             })
         </script>
 
         <script th:inline="javascript">
             /*      TAGS SEARCH     */
             $(document).ready(function () {
-                const images = [[${imageCategoryMap}]]
                 let catsMap = [[${categories}]]
                 const cats = catsMap.map(i => { return { name: i.name, id: i.id }})
 
@@ -132,16 +131,20 @@
                     } else if (e.key === 'Enter' && $input.val() === '') {
                         const shownDivs = $('div[id^="p-"]');
                         if (tags.length !== 0) {
-                            let tagsIds = []
+                            let tagsNames = []
                             let checker = (original, target) => target.every(value => original.includes(value))
-                            Object.keys(tags).forEach(t => tagsIds.push(tags[t]["id"].toString()))
+                            Object.keys(tags).forEach(t => tagsNames.push(tags[t]["name"]))
 
                             $.each($(shownDivs), function () {
-                                let divid = this.id.split("-")[1];
-                                const taggedImages = Object.keys(images)
+                                //let divid = this.id.split("-")[1];
+                                let divTags = $(this).attr("data-tags")
 
-                                if (taggedImages.includes(divid)) {
-                                    if (checker(images[divid], tagsIds)) {
+                                if (divTags != null) {
+                                    const tagsArr = divTags.split(",")
+                                    if (checker(tagsArr, tagsNames)) {
+                                        if ($(this).hasClass("gtm")) {
+                                            $("#" + this.id + " img").attr("src", $(this).attr("data-src"))
+                                        }
                                         $(this).removeClass("n")
                                         $("#" + this.id + " > .ph-controls button.gallery").attr("data-fancybox", "gallery")
                                     } else {
@@ -157,11 +160,13 @@
                             gridViewUpdate($('#pictures div[id^="p-"]:not(div[id^="p-"].n)'))
                         } else {
                             $.each($(shownDivs), function () {
-                                $(this).removeClass("n")
+                                if ($(this).hasClass("gtm")) {
+                                    $(this).addClass("n")
+                                } else $(this).removeClass("n")
                                 $("#" + this.id + " > .ph-controls button.gallery").attr("data-fancybox", "gallery")
                             })
                             $('#pnav').empty()
-                            gridViewUpdate($('#pictures div[id^="p-"]'))
+                            gridViewUpdate($('#pictures div[id^="p-"]:not(.gtm)'))
                         }
                     }
                 }
@@ -242,14 +247,15 @@
             <div class="ffr">
                 <div class="ffc w-75">
                     <div class="tb g-5 mt-5 w-100 p-2" id="pictures">
-                        <div th:each="ph: ${last}" class="picdiv ffc" th:id="|p-${ph.getId()}|">
-                            <img th:src="|/images/thumbs/${ph.getPath()}.${ph.getExt()}|" th:alt="${ph.getId()}" class="w-100 result-picture">
+                        <div class="picdiv ffc" th:each="ph, i: ${allImages}" th:id="|p-${ph.key.getId()}|" th:data-tags="${#strings.listJoin(ph.value, ',')}" th:data-src="|/images/thumbs/${ph.key.getPath()}.${ph.key.getExt()}|" th:classappend="${i.index lt last ? '' : 'n gtm'}">
+                            <img th:if="${i.index lt last}" th:src="|/images/thumbs/${ph.key.getPath()}.${ph.key.getExt()}|" th:alt="${ph.key.getId()}" class="w-100 result-picture">
+                            <img th:if="${i.index ge last}" th:alt="${ph.key.getId()}" class="w-100 result-picture" src="">
 
-                            <div class="ph-controls" th:id="|controls-${ph.getId()}|">
-                                <button class="crs-p gallery t-all-2s" th:data-src="|/images/${ph.getPath()}.${ph.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
-                                <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/edit?pic-id=' + ${ph.getId()} + '`'" th:if="${o || w || s}"><i class="fa fa-pencil"></i></button>
-                                <button class="crs-p t-all-2s" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.getId()} + '`'" th:if="${o || d || s}"><i class="fa fa-trash"></i></button>
-                                <button class="crs-p t-all-2s" th:if="${o || w || d || r || s}"><a th:href="|/images/${ph.getPath()}.${ph.getExt()}|" download=""><i class="fa fa-download"></i></a></button>
+                            <div class="ph-controls" th:id="|controls-${ph.key.getId()}|">
+                                <button class="crs-p gallery t-all-2s" th:data-src="|/images/${ph.key.getPath()}.${ph.key.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
+                                <button class="crs-p t-all-2s" sec:authorize="hasAnyAuthority('o', 'w', 's')" th:onclick="'window.location.href=`/cn/i/edit?pic-id=' + ${ph.key.getId()} + '`'"><i class="fa fa-pencil"></i></button>
+                                <button class="crs-p t-all-2s" sec:authorize="hasAnyAuthority('o', 'd', 's')" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
+                                <button class="crs-p t-all-2s" sec:authorize="hasAnyAuthority('o', 'w', 'd', 'r', 's')"><a th:href="|/images/${ph.key.getPath()}.${ph.key.getExt()}|" download=""><i class="fa fa-download"></i></a></button>
                             </div>
 
                         </div>

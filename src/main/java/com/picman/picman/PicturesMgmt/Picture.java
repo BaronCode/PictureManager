@@ -80,4 +80,8 @@ public class Picture {
         }
         return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
+
+    public Picture self() {
+        return this;
+    }
 }

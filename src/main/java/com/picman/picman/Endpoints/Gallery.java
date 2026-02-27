@@ -2,6 +2,7 @@ package com.picman.picman.Endpoints;
 
 import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
 import com.picman.picman.AssignationMgmt.PicturesCategories;
+import com.picman.picman.CategoriesMgmt.Category;
 import com.picman.picman.CategoriesMgmt.CategoryServiceImplementation;
 import com.picman.picman.Exceptions.InvalidTagsResearchException;
 import com.picman.picman.PicturesMgmt.Picture;
@@ -80,42 +81,24 @@ public class Gallery {
     }
 
     @GetMapping("/gallery")
-    public String gallery(@CookieValue(name = "jwt", required = false) String jwt, Model model) {
-        Set<Character> privileges;
-
-        if (jwt != null) {
-            String email = jwtService.extractUserMail(jwt);
-            User current = userService.findByEmail(email);
-            privileges = current.getPrivileges();
-        } else {
-            privileges = Set.of('r');
-        }
-
-
-
-        Map<Integer, List<String>> pc = assignationService
-                .getAssignationsGroup()
+    public String gallery(Model model) {
+        Map<Picture, List<String>> all = pictureService
+                .findAll()
                 .stream()
                 .collect(Collectors.toMap(
-                        PicturesCategories::getPicture,
-                        s ->
-                                Arrays.stream(s
-                                        .getCategoriesList()
-                                        .split(",")
-                                ).toList()
+                        Picture::self,
+                        p->assignationService.getCategoriesByPictureId(p.getId()).stream().map(Category::getName).toList()
                 ));
 
+        //List<Picture> all = pictureService.findAll();
+        //Collections.reverse(all);
+
         model.addAttribute("categories", categoryService.findAll());
-        model.addAttribute("path", "/ dashboard");
+        model.addAttribute("path", "/ gallery");
         model.addAttribute("defaultPath", Settings.get("output"));
         model.addAttribute("maxImagesRow", Settings.get("max_images_shown"));
-        model.addAttribute("last", pictureService.getLastAdded(Integer.parseInt(Settings.get("max_image_select"))));
-        model.addAttribute("imageCategoryMap", pc);
-        model.addAttribute("o", privileges.contains('o'));
-        model.addAttribute("d", privileges.contains('d'));
-        model.addAttribute("w", privileges.contains('w'));
-        model.addAttribute("s", privileges.contains('s'));
-        model.addAttribute("r", privileges.contains('r'));
+        model.addAttribute("last", Integer.parseInt(Settings.get("max_image_select")));
+        model.addAttribute("allImages", all);
         return "cn/gallery";
     }
 
@@ -149,4 +132,3 @@ public class Gallery {
 
     }
 }
-
