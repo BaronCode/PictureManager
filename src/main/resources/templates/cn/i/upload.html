@@ -90,14 +90,14 @@
     </head>
     <body>
         <div class="n pabs w-100 h-100 z-3 f jcc" id="overlay">
-            <div class="w-50 b-1-do b-r-2 bg-light-orange prlt p-2 ffc">
+            <div class="w-50 b-1-do b-r-2 bg-light-main prlt p-2 ffc">
                 <label>
                     <input class="w-100 p-2 b-1-do b-r-1" type="text" placeholder="Photographer name" id="ph-input" required>
                 </label>
                 <button class="w-100 mt-2" id="submit-def">Upload</button>
             </div>
         </div>
-        <div class="bg-dark-orange">
+        <div class="bg-dark-main">
             <div th:replace="~{fragments/header :: header}"></div>
             <div id="hrepdiv" class="bg-transparent"></div>
         </div>
@@ -105,7 +105,7 @@
             <div class="p-2 mt-5 w-100">
                 <div class="w-75 m-a">
                     <form id="uploadForm">
-                        <div id="dropzone" class="w-100 ib f tc aic jcc" style="border: 5px dashed var(--darkorange); border-radius: 2vh; height: 50vh">
+                        <div id="dropzone" class="w-100 ib f tc aic jcc" style="border: 5px dashed var(--dark-main); border-radius: 2vh; height: 50vh">
                             <span id="selection">
                                 Click to select a file
                             </span>

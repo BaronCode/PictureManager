@@ -222,12 +222,12 @@
                 $(".ph-controls button").hover(
                         function () {
                             const parent = $(this).parent()
-                            $("#" + parent.attr("id") + " button").addClass("tdo")
-                            $(this).removeClass("tdo")
+                            $("#" + parent.attr("id") + " button").addClass("text-dark-main")
+                            $(this).removeClass("text-dark-main")
                         },
                         function () {
                             const parent = $(this).parent()
-                            $("#" + parent.attr("id") + " button").removeClass("tdo")
+                            $("#" + parent.attr("id") + " button").removeClass("text-dark-main")
                         }
                 )
             }
@@ -239,14 +239,14 @@
         </script>
     </head>
     <body>
-        <div class="bg-dark-orange">
+        <div class="bg-dark-main">
             <div th:replace="~{fragments/header :: header}"></div>
             <div id="hrepdiv" class="bg-transparent"></div>
         </div>
-        <main class="mt-10 mb-10 p-s-2 w-100 bg-light-orange">
+        <main class="mt-10 mb-10 p-s-2 w-100 bg-light-main">
             <div class="ffr">
                 <div class="ffc w-75">
-                    <div class="tb g-5 mt-5 w-100 p-2" id="pictures">
+                    <div class="text-on-light-main g-5 mt-5 w-100 p-2" id="pictures">
                         <div class="picdiv ffc" th:each="ph, i: ${allImages}" th:id="|p-${ph.key.getId()}|" th:data-tags="${#strings.listJoin(ph.value, ',')}" th:data-src="|/images/thumbs/${ph.key.getPath()}.${ph.key.getExt()}|" th:classappend="${i.index lt last ? '' : 'n gtm'}">
                             <img th:if="${i.index lt last}" th:src="|/images/thumbs/${ph.key.getPath()}.${ph.key.getExt()}|" th:alt="${ph.key.getId()}" class="w-100 result-picture">
                             <img th:if="${i.index ge last}" th:alt="${ph.key.getId()}" class="w-100 result-picture" src="">
@@ -260,10 +260,10 @@
 
                         </div>
                     </div>
-                    <div id="pnav" class="tw w-75 p-s-2"></div>
+                    <div id="pnav" class="text-on-dark-main w-75 p-s-2"></div>
                 </div>
                 <div class="ffc w-25">
-                    <div class="tb p-s-2 w-100 mt-10">
+                    <div class="text-on-light-main p-s-2 w-100 mt-10">
                         <div class="w-100 p-2" id="search">
                             <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
                             <form id="tagsForm" method="get" class="vhdn">
@@ -272,7 +272,7 @@
                             <div id="categories-results" class="w-100 vhdn p-b-0"></div>
                             <div id="tagsDiv" class="p-s-1"><i id="tagsDivBegin"></i></div>
                         </div>
-                        <div class="w-100 tb p-2">
+                        <div class="w-100 text-on-light-main p-2">
                             <p class="w-100 tc">Advanced research</p>
                             <div class="ffc mt-2" id="adv-rsc">
                                 <div class="ffr">

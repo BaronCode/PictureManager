@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @AllArgsConstructor
@@ -62,4 +64,6 @@ public class User {
     public String toString() {
         return getName() + "[" + getId() + ":" + getEmail() + "]";
     }
+
+    public String logToString() { return getName() + " [" + getId() + "]"; }
 }

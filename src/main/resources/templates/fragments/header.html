@@ -3,18 +3,19 @@
     <body>
 
         <div th:fragment="header" class="w-100" id="header">
-            <div class="p-2 w-100 ffr bg-dark-orange aic">
+            <div class="w-100 ffr bg-dark-main aic p-1">
                 <div class="w-50 ts">
-                    <span class="m-0 tw tbr title"><b>PicMan</b></span><!--/*@thymesVar id="path" type="java"*/-->
-                    <span class="m-0 tw tbr path">&nbsp;</span>
-                    <span class="m-0 tw tbr path" th:text="${path}"></span>
+                    <span class="m-0 text-on-dark-main tbr title"><b>PicMan</b></span><!--/*@thymesVar id="path" type="java"*/-->
+                    <span class="m-0 text-on-dark-main tbr path">&nbsp;</span>
+                    <span class="m-0 text-on-dark-main tbr path" th:text="${path}"></span>
                 </div>
                 <div class="w-25"></div>
-                <div class="w-25 te tw">
-                    <i sec:authorize="hasAnyAuthority('o', 'w', 'd', 'u', 'r')" class="fa-solid fa-house ichl" th:onclick="|window.location.href='/cn/home'|"></i> <!--Home-->
-                    <i sec:authorize="hasAnyAuthority('o', 'w', 'd')" class="fa-solid fa-upload ichl" th:onclick="|window.location.href='/cn/i/upload'|"></i>
-                    <i sec:authorize="hasAnyAuthority('o', 'w', 'd')" class="fa-solid fa-list ichl" th:onclick="|window.location.href='/cn/c/categories'|"></i>
-                    <i sec:authorize="hasAnyAuthority('o')" class="fa-solid fa-gear ichl"></i>  <!--Admin panel-->
+                <div class="w-25 te text-on-dark-main">
+                    <i sec:authorize="isAuthenticated()" class="fa-solid fa-house ichl" th:onclick="|window.location.href='/cn/home'|"></i> <!--Home-->
+                    <i sec:authorize="isAuthenticated()" class="fa-solid fa-image ichl" th:onclick="|window.location.href='/cn/gallery'|"></i> <!--Home-->
+                    <i sec:authorize="hasAnyAuthority('o', 'w', 's')" class="fa-solid fa-upload ichl" th:onclick="|window.location.href='/cn/i/upload'|"></i>
+                    <i sec:authorize="hasAnyAuthority('o', 'w', 'd', 's')" class="fa-solid fa-list ichl" th:onclick="|window.location.href='/cn/c/categories'|"></i>
+                    <i sec:authorize="hasAnyAuthority('o', 'u')" class="fa-solid fa-gear ichl" th:onclick="|window.location.href='/cn/admin/dashboard'|"></i>  <!--Admin panel-->
                     <i sec:authorize="!(isAuthenticated())" class="fa-solid fa-user ichl" th:onclick="|window.location.href='/u/'|"></i>
                 </div>
             </div>

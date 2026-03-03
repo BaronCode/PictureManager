@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <body>
 
         <div th:fragment="footer" class="w-100">
             <div id="frepdiv" class="w-100"></div>
             <div class="w-100" id="footer">
-                <div class="p-2 w-100 ffr bg-dark-orange aic h-in">
+                <div class="p-1 w-100 ffr bg-dark-main aic h-in">
                     <div class="w-25 ts">
-                        <p class="m-0 tw">&copy; 2025 PicMan by AB</p>
+                        <p class="m-0 text-on-dark-main">&copy; 2025 PicMan by AB</p>
                     </div>
                     <div class="w-50 f jcc aic h-in">
                         <img th:src="@{/imgs/logo.png}" alt="PicMan logo" class="h-50">
-                        <p class="p-2 m-0 tw">&middot;</p>
+                        <p class="p-2 m-0 text-on-dark-main">&middot;</p>
 
                         <svg class="h-50" viewBox="0 0 253 97" xmlns="http://www.w3.org/2000/svg">
                             <title>Homepage</title>
@@ -39,9 +39,9 @@
                         </svg>
 
                     </div>
-                    <div class="w-25 te tw ffr jca">
-                        <p class="m-0"><a class="fl" th:href="@{/cn/home}">Home</a></p>
-                        <p class="m-0"><a class="fl" th:href="@{/cn/gallery}">Gallery</a></p>
+                    <div class="w-25 te text-on-dark-main ffr jce">
+                        <p class="m-0" sec:authorize="isAuthenticated()"><a class="fl" th:href="@{/cn/home}">Home</a></p>
+                        <p class="m-0" sec:authorize="!isAuthenticated()"><a class="fl" th:href="@{/cn/gallery}">Gallery</a></p>
                         <p class="m-0"><a class="fl" th:href="@{/contacts}">Contacts</a></p>
                         <p class="m-0"><a class="fl" th:href="@{/pricing}">Pricing</a></p>
                     </div>

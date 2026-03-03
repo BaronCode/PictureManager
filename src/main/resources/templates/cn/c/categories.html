@@ -48,7 +48,7 @@
         </script>
     </head>
     <body>
-        <div class="bg-dark-orange">
+        <div class="bg-dark-main">
             <div th:replace="~{fragments/header :: header}"></div>
             <div id="hrepdiv" class="bg-transparent"></div>
         </div>
@@ -56,7 +56,7 @@
             <div class="p-2 mt-5 w-100">
                 <div class="w-100 tc"><p>Categories</p></div>
                 <div class="w-100 ffc mt-2">
-                    <table id="data" class="tb b-1-do">
+                    <table id="data" class="text-on-light-main b-1-do">
                         <thead>
                             <tr>
                                 <th class="th-fr-f b-1-do">&num;</th>
@@ -72,15 +72,15 @@
                                 <td class="b-1-do w-50" th:text="${cat.getDescription()}"></td>
                                 <td class="b-1-do">
                                     <div class="w-100 f jce">
-                                        <button th:onclick="'window.location.href=`/cn/c/edit?cat-id=' + ${cat.getId()} + '`'" th:if="${o || w || s}" class="tw w-25"><i class="fa fa-pencil"></i></button>
-                                        <button th:onclick="'window.location.href=`/cn/c/delete?cat-id=' + ${cat.getId()} + '`'" th:if="${o || d || s}" class="tw w-25"><i class="fa fa-trash"></i></button>
+                                        <button th:onclick="'window.location.href=`/cn/c/edit?cat-id=' + ${cat.getId()} + '`'" th:if="${o || w || s}" class="text-on-dark-main w-25"><i class="fa fa-pencil"></i></button>
+                                        <button th:onclick="'window.location.href=`/cn/c/delete?cat-id=' + ${cat.getId()} + '`'" th:if="${o || d || s}" class="text-on-dark-main w-25"><i class="fa fa-trash"></i></button>
                                     </div>
 
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <div id="tnav" class="tw"></div>
+                    <div id="tnav" class="text-on-dark-main"></div>
                 </div>
             </div>
             <hr style="margin: 2vh 2vw">

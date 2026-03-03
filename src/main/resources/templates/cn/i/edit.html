@@ -206,7 +206,7 @@
         </script>
     </head>
     <body>
-        <div class="bg-dark-orange">
+        <div class="bg-dark-main">
             <div th:replace="~{fragments/header :: header}"></div>
             <div id="hrepdiv" class="bg-transparent"></div>
         </div>
@@ -222,12 +222,12 @@
                     <div class="w-50 ffc p-s-2">
                         <div class="w-100 tc"><p>PicMan image data</p></div>
                         <div class="w-100 ffr mt-5">
-                            <div class="w-50 tb data">
+                            <div class="w-50 text-on-light-main data">
                                 <p>Image ID</p>
                                 <p>Added on</p>
                                 <p>Protected</p>
                             </div>
-                            <div class="w-50 tb te data">
+                            <div class="w-50 text-on-light-main te data">
                                 <p th:text="${pic.getId()}"></p>
                                 <p th:text="${pic.getFormattedDate(pic.getDateadded())}"></p>
                                 <p th:text="${pic.isProtection()}"></p>
@@ -253,7 +253,7 @@
                                         <i class="fa fa-plus tw"></i>
                                     </div>-->
 
-                                    <div class="tb w-100">
+                                    <div class="text-on-light-main w-100">
                                         <div class="w-100" id="search">
                                             <input id="categories-input" type="search" class="w-100 p-2" placeholder="Add a category...">
                                             <form id="tagsForm" method="get" class="vhdn">
@@ -265,12 +265,12 @@
                                     </div>
                                 </div>
                                 <div class="w-100 ffc mt-5">
-                                    <div class="w-100 ffr fw tw">
-                                        <div th:if="${pictureCategories.size()}!=0" th:each="pc, i: ${pictureCategories}" class="f tag-edit aic bg-dark-orange b-r-1 prlt" style="border: 1px solid black">
+                                    <div class="w-100 ffr fw text-on-dark-main">
+                                        <div th:if="${pictureCategories.size()}!=0" th:each="pc, i: ${pictureCategories}" class="f tag-edit aic bg-dark-main b-r-1 prlt" style="border: 1px solid black">
                                             <span class="z-3 present-tag" th:id="|remove-${pc.getId()}|" th:text="${pc.getName()}"></span>
                                             <div class="vhdn pabs w-100 h-100 add-overlay"></div>
                                         </div>
-                                        <div th:unless="${pictureCategories.size()}!=0" class="tb w-100 tc"><p>No tags for this picture</p></div>
+                                        <div th:unless="${pictureCategories.size()}!=0" class="text-on-light-main w-100 tc"><p>No tags for this picture</p></div>
                                     </div>
                                 </div>
                             </div>
@@ -278,7 +278,7 @@
                         <div class="w-100 vhdn" id="technical-data">
                             <div class="w-100 tc"><p>Image metadata</p></div>
                             <div class="w-100 ffr mt-5">
-                                <div class="w-50 tb data">
+                                <div class="w-50 text-on-light-main data">
                                     <p>Size</p>
                                     <p>Shot on</p>
                                     <p>Height</p>
@@ -290,7 +290,7 @@
                                     <p>Camera model</p>
                                     <p>Photographer</p>
                                 </div>
-                                <div class="w-50 tb te data">
+                                <div class="w-50 text-on-light-main te data">
                                     <p th:text="${pic.getSizekb() != null ? pic.getSizekb() + ' KB' : 'No data'}"></p>
                                     <p th:text="${pic.getFormattedDate(pic.getShotat()) ?: 'No data'}"></p>
                                     <p th:text="${pic.getHeight() != null ? pic.getHeight() + ' px' : 'No data'}"></p>

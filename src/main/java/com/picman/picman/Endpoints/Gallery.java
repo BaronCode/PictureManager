@@ -76,14 +76,13 @@ public class Gallery {
         model.addAttribute("org", current.getOrganization());
         model.addAttribute("privileges", longPrivileges);
         model.addAttribute("path", "/ home");
-        model.addAttribute("gear", privileges.contains('o') || privileges.contains('u') || privileges.contains('s'));
         return "cn/home";
     }
 
     @GetMapping("/gallery")
     public String gallery(Model model) {
         Map<Picture, List<String>> all = pictureService
-                .findAll()
+                .getAllOrdered()
                 .stream()
                 .collect(Collectors.toMap(
                         Picture::self,

@@ -46,4 +46,9 @@ public class PictureServiceImplementation implements PictureService {
     public boolean existsByPath(String path) {
         return pictureRepo.existsByPath(path);
     }
+
+    @Override
+    public List<Picture> getAllOrdered() {
+        return pictureRepo.getAllOrdered();
+    }
 }

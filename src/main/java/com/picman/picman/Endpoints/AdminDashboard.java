@@ -1,5 +1,6 @@
 package com.picman.picman.Endpoints;
 
+import com.picman.picman.LoggingMgmt.LogServiceImplementation;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringSettings.Settings;
 import com.picman.picman.UserMgmt.User;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -18,11 +20,13 @@ public class AdminDashboard {
     private final JwtService jwtService;
     private final UserServiceImplementation userService;
     private final PasswordEncoder passwordEncoder;
+    private final LogServiceImplementation logService;
 
-    public AdminDashboard(JwtService jwtService, UserServiceImplementation userServiceImplementation, PasswordEncoder passwordEncoder) {
+    public AdminDashboard(JwtService jwtService, UserServiceImplementation userServiceImplementation, PasswordEncoder passwordEncoder, LogServiceImplementation logServiceImplementation) {
         this.jwtService = jwtService;
         this.userService = userServiceImplementation;
         this.passwordEncoder = passwordEncoder;
+        this.logService = logServiceImplementation;
     }
 
     @GetMapping("/")
@@ -39,6 +43,8 @@ public class AdminDashboard {
         User u = userService.findByEmail(email);
 
         model.addAttribute("users", userService.findAll());
+        model.addAttribute("roles", List.of('o', 'u', 's', 'w', 'd', 'r'));
+        model.addAttribute("logs", logService.findAll());
         model.addAttribute("path", "/ admin dashboard");
         return "cn/admin/dashboard";
     }
