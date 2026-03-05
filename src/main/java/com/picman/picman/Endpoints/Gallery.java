@@ -81,23 +81,21 @@ public class Gallery {
 
     @GetMapping("/gallery")
     public String gallery(Model model) {
-        Map<Picture, List<String>> all = pictureService
-                .getAllOrdered()
-                .stream()
-                .collect(Collectors.toMap(
-                        Picture::self,
-                        p->assignationService.getCategoriesByPictureId(p.getId()).stream().map(Category::getName).toList()
-                ));
+        LinkedHashMap<Picture, List<String>> pcbind = new LinkedHashMap<>();
 
-        //List<Picture> all = pictureService.findAll();
-        //Collections.reverse(all);
+        for (Picture p : pictureService.getAllOrdered()) {
+            pcbind.put(
+                    p,
+                    assignationService.getCategoriesByPictureId(p.getId()).stream().map(Category::getName).toList()
+            );
+        }
 
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("path", "/ gallery");
         model.addAttribute("defaultPath", Settings.get("output"));
         model.addAttribute("maxImagesRow", Settings.get("max_images_shown"));
         model.addAttribute("last", Integer.parseInt(Settings.get("max_image_select")));
-        model.addAttribute("allImages", all);
+        model.addAttribute("allImages", pcbind);
         return "cn/gallery";
     }
 

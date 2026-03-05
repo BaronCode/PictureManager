@@ -1,6 +1,7 @@
 package com.picman.picman.PicturesMgmt;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,5 +28,6 @@ public interface PictureRepo extends JpaRepository<Picture, Integer> {
 
     boolean existsByPath(String path);
 
-
+    @Override
+    List<Picture> findAll(Sort sort);
 }

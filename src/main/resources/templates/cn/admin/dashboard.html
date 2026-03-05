@@ -73,7 +73,7 @@
                 <p sec:authorize="hasAuthority('o')" id="settings-menu">Application settings</p>
             </div>
             <div sec:authorize="hasAnyAuthority('o', 'u')" class="ffc bg-light-main text-on-light-main p-2 w-85 ml-a" id="users-control">
-                <table id="data" class="text-on-light-main b-1-do" data-rs="10">
+                <table class="data text-on-light-main b-1-do" data-rs="10">
                     <thead>
                         <tr>
                             <th class="th-fr-f b-1-do">&num;</th>
@@ -134,7 +134,37 @@
                 <div class="tnav"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="categories-control"></div>
-            <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="pictures-control"></div>
+            <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="pictures-control">
+                <table class="data text-on-light-main b-1-do" data-rs="10">
+                    <thead>
+                        <tr>
+                            <th class="th-fr-f b-1-do w-5">&num;</th>
+                            <th class="b-1-do w-50">Filename</th>
+                            <th class="b-1-do w-15">Date added</th>
+                            <th class="b-1-do w-20">Categories</th>
+                            <th class="th-fr-l b-1-do w-5">Actions</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <th:block th:each="pc: ${pcbind}">
+                            <tr>
+                                <td class="b-1-do w-5"><a th:href="@{/cn/i/edit?pic-id={pic-id}(pic-id=${pc.key.getId()})}" th:text="${pc.key.getId()}"></a></td>
+                                <td class="b-1-do w-50" th:text="|${pc.key.getPath()}.${pc.key.getExt()}|"></td>
+                                <td class="b-1-do w-15" th:text="${pc.key.getFormattedDate(pc.key.getDateadded())}"></td>
+                                <td class="b-1-do w-15"><th:block th:each="cat: ${pc.value}"><a th:text="${cat}" th:href="@{/cn/c/edit?cat-id={cat-id}(cat-id=${cat})}"></a> </th:block></td>
+                                <td class="b-1-do w-10">
+                                    <div class="w-100 f jce">
+                                        <button class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/protect-picture?pic-id=' + ${pc.key.getId()} + '`'"><i th:classappend="${pc.key.isProtection() ? 'fa-unlock':'fa-lock'}" class="fa"></i></button>
+                                        <button class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/delete-picture?pic-id=' + ${pc.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </tbody>
+                </table>
+                <div class="tnav"></div>
+            </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="logs-control">
                 <table class="w-100 logs" data-rs="20">
                     <thead>

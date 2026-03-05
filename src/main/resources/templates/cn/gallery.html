@@ -214,8 +214,10 @@
         <script>
             /*      BUTTONS         */
             function setControlsGrid() {
-                const size = $(".ph-controls button").length/$(".picdiv").length
-                $(".ph-controls").addClass("g-"+size)
+                $(".ph-controls").each(function(){
+                    const size = $(this).children().length
+                    $(this).addClass("g-" + size)
+                })
             }
 
             function setHoverStyling() {
@@ -254,7 +256,8 @@
                             <div class="ph-controls" th:id="|controls-${ph.key.getId()}|">
                                 <button class="crs-p gallery t-all-2s" th:data-src="|/images/${ph.key.getPath()}.${ph.key.getExt()}|" data-fancybox="gallery"><i class="fa fa-eye"></i></button>
                                 <button class="crs-p t-all-2s" sec:authorize="hasAnyAuthority('o', 'w', 's')" th:onclick="'window.location.href=`/cn/i/edit?pic-id=' + ${ph.key.getId()} + '`'"><i class="fa fa-pencil"></i></button>
-                                <button class="crs-p t-all-2s" sec:authorize="hasAnyAuthority('o', 'd', 's')" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
+                                <button class="crs-p t-all-2s" sec:authorize="hasAnyAuthority('o', 's')" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
+                                <button class="crs-p t-all-2s" th:if="${!(ph.key.isProtection())}" sec:authorize="hasAnyAuthority('d')" th:onclick="'window.location.href=`/cn/i/delete?pic-id=' + ${ph.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
                                 <button class="crs-p t-all-2s" sec:authorize="hasAnyAuthority('o', 'w', 'd', 'r', 's')"><a th:href="|/images/${ph.key.getPath()}.${ph.key.getExt()}|" download=""><i class="fa fa-download"></i></a></button>
                             </div>
 

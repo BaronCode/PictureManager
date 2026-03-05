@@ -39,8 +39,6 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.picman.picman.Utilities.Utilities.*;
-
 @Slf4j
 @Controller
 @RequestMapping("cn/i/")
@@ -201,7 +199,7 @@ public class ImageEdit {
                     throw new ImageProcessingException("An error happened while processing the image");
                 } else {
                     p.setPhotographer(photographer);
-                    Picture saved = pictureService.addPicture(p);
+                    Picture saved = pictureService.save(p);
                     Log l = new Log(LocalDateTime.now(), "/cn/i/upload", "ImageEdit", u, "Saved new picture " + saved.getId());
                     logService.save(l);
                 }
@@ -213,7 +211,7 @@ public class ImageEdit {
                 throw new ImageProcessingException("An error happened while processing the image");
             } else {
                 p.setPhotographer(photographer);
-                Picture saved = pictureService.addPicture(p);
+                Picture saved = pictureService.save(p);
                 Log l = new Log(LocalDateTime.now(), "/cn/i/upload", "ImageEdit", u, "Saved new picture " + saved.getId());
                 logService.save(l);
             }

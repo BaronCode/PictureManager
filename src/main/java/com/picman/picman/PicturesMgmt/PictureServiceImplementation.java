@@ -2,6 +2,7 @@ package com.picman.picman.PicturesMgmt;
 
 import com.picman.picman.Exceptions.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,8 +23,7 @@ public class PictureServiceImplementation implements PictureService {
         return pictureRepo.findAll();
     }
 
-    @Override
-    public Picture addPicture(Picture p) {
+    public Picture save(Picture p) {
         return pictureRepo.save(p);
     }
 
@@ -50,5 +50,10 @@ public class PictureServiceImplementation implements PictureService {
     @Override
     public List<Picture> getAllOrdered() {
         return pictureRepo.getAllOrdered();
+    }
+
+    @Override
+    public List<Picture> findAllSorted(Sort sort) {
+        return pictureRepo.findAll(sort);
     }
 }

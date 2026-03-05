@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Iterator;
@@ -48,7 +47,7 @@ public class StartActions {
                             upToDate = false;
                             logger.warn("Detected change in {}, adding to database image {}", Settings.get("output"), f.getAbsolutePath());
                             Picture p = PictureBuilder.buildByFile(f, false, null, pictureService);
-                            Picture added = pictureService.addPicture(p);
+                            Picture added = pictureService.save(p);
                             logger.info("Added new {} Picture {}:\"{}\"", (added.isProtection() ? "protected" : "unprotected"), added.getId(), added.getPath());
                         }
                     }

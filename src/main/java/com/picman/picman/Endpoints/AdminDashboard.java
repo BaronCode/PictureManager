@@ -1,17 +1,27 @@
 package com.picman.picman.Endpoints;
 
+import com.picman.picman.AssignationMgmt.AssignationServiceImplementation;
+import com.picman.picman.CategoriesMgmt.Category;
+import com.picman.picman.Exceptions.ImageProcessingException;
 import com.picman.picman.LoggingMgmt.LogServiceImplementation;
+import com.picman.picman.PicturesMgmt.Picture;
+import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
 import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringSettings.Settings;
 import com.picman.picman.UserMgmt.User;
 import com.picman.picman.UserMgmt.UserServiceImplementation;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("cn/admin/")
@@ -21,12 +31,16 @@ public class AdminDashboard {
     private final UserServiceImplementation userService;
     private final PasswordEncoder passwordEncoder;
     private final LogServiceImplementation logService;
+    private final PictureServiceImplementation pictureService;
+    private final AssignationServiceImplementation assignationService;
 
-    public AdminDashboard(JwtService jwtService, UserServiceImplementation userServiceImplementation, PasswordEncoder passwordEncoder, LogServiceImplementation logServiceImplementation) {
+    public AdminDashboard(JwtService jwtService, UserServiceImplementation userServiceImplementation, PasswordEncoder passwordEncoder, LogServiceImplementation logServiceImplementation, PictureServiceImplementation pictureServiceImplementation, AssignationServiceImplementation assignationServiceImplementation) {
         this.jwtService = jwtService;
         this.userService = userServiceImplementation;
         this.passwordEncoder = passwordEncoder;
         this.logService = logServiceImplementation;
+        this.pictureService = pictureServiceImplementation;
+        this.assignationService = assignationServiceImplementation;
     }
 
     @GetMapping("/")
@@ -41,8 +55,18 @@ public class AdminDashboard {
     {
         String email = jwtService.extractUserMail(jwt);
         User u = userService.findByEmail(email);
+        LinkedHashMap<Picture, List<Integer>> pcbind = new LinkedHashMap<>();
+
+        for (Picture p : pictureService.getAllOrdered()) {
+            pcbind.put(
+                    p,
+                    assignationService.getCategoriesByPictureId(p.getId()).stream().map(Category::getId).toList()
+            );
+        }
 
         model.addAttribute("users", userService.findAll());
+        model.addAttribute("pictures", pictureService.findAll());
+        model.addAttribute("pcbind", pcbind);
         model.addAttribute("roles", List.of('o', 'u', 's', 'w', 'd', 'r'));
         model.addAttribute("logs", logService.findAll());
         model.addAttribute("path", "/ admin dashboard");
@@ -78,5 +102,19 @@ public class AdminDashboard {
         }
             
         return "cn/admin/dashboard";
+    }
+
+    @GetMapping("/protect-picture")
+    public String protect(
+            @RequestParam("pic-id") int id
+    ) {
+        Picture p = pictureService.getById(id);
+        if (p == null) {
+            throw new ImageProcessingException("An error happened while processing the image");
+        }
+        p.setProtection(!p.isProtection());
+        pictureService.save(p);
+
+        return "redirect:/cn/admin/dashboard";
     }
 }
