@@ -8,6 +8,7 @@ target/
 *.txt
 /mvnw
 /mvnw.cmd
+src/main/java/com/picman/picman/SpringSettings/Temp.java
 
 ### IntelliJ IDEA ###
 .idea/
