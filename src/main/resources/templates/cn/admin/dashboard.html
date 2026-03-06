@@ -21,7 +21,7 @@
                 const divid = $("[id$=-control]:not(.n)").attr("id")
                 const rowsTotal = rows.length;
                 const numPages = rowsTotal / rowsShown;
-                for(i = 0;i < numPages;i++) {
+                for(let i = 0;i < numPages;i++) {
                     let pageNum = i + 1;
                     $('#' + divid + ' .tnav').append('<a class="table-pg-s ib b-1-do" href="#" rel="'+i+'">'+pageNum+'</a> ');
                 }
@@ -66,11 +66,11 @@
         </div>
         <main class="ffr w-100">
             <div class="ffc w-15 sidebar bg-main text-on-dark-main pfxd h-100">
-                <p sec:authorize="hasAnyAuthority('o', 'u')" class="mt-5 selected-menu" id="users-menu">Users</p>
-                <p sec:authorize="hasAuthority('o')" id="categories-menu">Categories</p>
-                <p sec:authorize="hasAuthority('o')" id="pictures-menu">Pictures</p>
-                <p sec:authorize="hasAuthority('o')" id="logs-menu">Events logs</p>
-                <p sec:authorize="hasAuthority('o')" id="settings-menu">Application settings</p>
+                <p sec:authorize="hasAnyAuthority('o', 'u')" class="selected-menu crs-p" id="users-menu">Users</p>
+                <p sec:authorize="hasAuthority('o')" class="crs-p" id="categories-menu">Categories</p>
+                <p sec:authorize="hasAuthority('o')" class="crs-p" id="pictures-menu">Pictures</p>
+                <p sec:authorize="hasAuthority('o')" class="crs-p" id="logs-menu">Events logs</p>
+                <p sec:authorize="hasAuthority('o')" class="crs-p" id="settings-menu">Application settings</p>
             </div>
             <div sec:authorize="hasAnyAuthority('o', 'u')" class="ffc bg-light-main text-on-light-main p-2 w-85 ml-a" id="users-control">
                 <table class="data text-on-light-main b-1-do" data-rs="10">
@@ -103,7 +103,9 @@
                             <td class="b-1-do w-50" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                                            and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}">
                                 <div class="g-6">
-                                    <input type="checkbox" th:name="${prv}" th:id="${prv}" th:each="prv: ${roles}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                    <label>
+                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:each="prv: ${roles}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                    </label>
                                 </div>
                             </td>
                             <td class="b-1-do w-50 tc" sec:authorize="!(hasAuthority('s') and hasAuthority('o'))" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
@@ -113,7 +115,9 @@
                             <td class="b-1-do w-50 tc" th:if="${!(usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                             and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s')))}">
                                 <div class="g-6">
-                                    <input type="checkbox" th:name="${prv}" th:id="${prv}" th:each="prv: ${roles}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                    <label>
+                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:each="prv: ${roles}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                    </label>
                                 </div>
                             </td>
                             <td class="b-1-do w-10">
@@ -133,7 +137,35 @@
                 </table>
                 <div class="tnav"></div>
             </div>
-            <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="categories-control"></div>
+            <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="categories-control">
+                <table class="data text-on-light-main b-1-do" data-rs="10">
+                    <thead>
+                        <tr>
+                            <th class="th-fr-f b-1-do w-5">&num;</th>
+                            <th class="b-1-do w-20">Name</th>
+                            <th class="b-1-do w-25">Description</th>
+                            <th class="b-1-do w-40">Pictures assigned</th>
+                            <th class="th-fr-l b-1-do w-10">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <th:block th:each="cps: ${cpsbind}">
+                            <tr>
+                                <td class="b-1-do w-5"><a th:href="@{/cn/c/edit?cat-id={cat-id}(cat-id=${cps.key.getId()})}" th:text="${cps.key.getId()}"></a></td>
+                                <td class="b-1-do w-20" th:text="${cps.key.getName()}"></td>
+                                <td class="b-1-do w-25" th:text="${cps.key.getDescription()}"></td>
+                                <td class="b-1-do w-40"><th:block th:each="pic: ${cps.value}"><a th:text="${pic}" th:href="@{/cn/i/edit?pic-id={pic-id}(pic-id=${pic})}"></a> </th:block></td>
+                                <td class="b-1-do w-10">
+                                    <div class="w-100 f jce">
+                                        <button class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/delete-category?cat-id=' + ${cps.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </tbody>
+                </table>
+                <div class="tnav"></div>
+            </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="pictures-control">
                 <table class="data text-on-light-main b-1-do" data-rs="10">
                     <thead>
@@ -190,7 +222,23 @@
                 </table>
                 <div class="tnav"></div>
             </div>
-            <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="settings-control"></div>
+            <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="settings-control">
+                <table class="w-100 logs" data-rs="20">
+                    <thead>
+                        <tr>
+                            <th class="w-50">Key</th>
+                            <th class="w-50">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="se: ${settings}">
+                            <td th:text="${se.key}"></td>
+                            <td th:text="${se.value}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="tnav"></div>
+            </div>
         </main>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </body>

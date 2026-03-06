@@ -30,4 +30,8 @@ public interface AssignationRepo extends JpaRepository<Assignation, Integer> {
     @Transactional
     @Query("delete from Assignation a where a.picture = ?1 and a.category = ?2")
     void deleteByPair(Picture pid, Category cid);
+
+    @Query("select a.picture.id from Assignation a where a.category = ?1")
+    List<Long> getPicturesByCategory(Category cid);
+
 }

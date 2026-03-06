@@ -29,6 +29,10 @@ public class SettingsService {
         return cache.get(key);
     }
 
+    public Map<String, String> getAll() {
+        return repository.findAll();
+    }
+
     public List<String> getList(String key) throws JsonProcessingException {
         return mapper.readValue(
                 cache.get(key),

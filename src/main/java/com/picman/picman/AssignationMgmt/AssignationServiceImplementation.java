@@ -44,4 +44,9 @@ public class AssignationServiceImplementation implements AssignationService {
         return assignationRepo.getCategoriesByPictureId(id);
     }
 
+    @Override
+    public List<Long> getPicturesByCategory(Category c) {
+        return assignationRepo.getPicturesByCategory(c);
+    }
+
 }

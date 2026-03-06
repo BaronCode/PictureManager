@@ -80,6 +80,9 @@ textarea {
 .w-25 {
     width: 25%;
 }
+.w-40 {
+    width: 40%;
+}
 .w-50 {
     width: 50%;
 }
@@ -497,6 +500,7 @@ a.table-pg-s.active {
 }
 .sidebar p {
     padding: 5% 10%;
+    margin-top: 5%;
 }
 .selected-menu {
     background-color: var(--light-main);

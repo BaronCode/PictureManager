@@ -17,4 +17,6 @@ public interface AssignationService {
     List<Picture> getAssignationsByCategoryList(int[] categories);
 
     List<Category> getCategoriesByPictureId(long id);
+
+    List<Long> getPicturesByCategory(Category c);
 }
