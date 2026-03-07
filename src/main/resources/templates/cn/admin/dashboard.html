@@ -26,11 +26,14 @@
                     $('#' + divid + ' .tnav').append('<a class="table-pg-s ib b-1-do" href="#" rel="'+i+'">'+pageNum+'</a> ');
                 }
 
-                $.each($(rows), function () {
-                    $(this).addClass("n")
-                })
-
-                rows.slice(0, rowsShown).removeClass("n");
+                rows.hide()
+                rows.slice(0, rowsShown).show()
+                let i = (rowsShown>rowsTotal)?(rowsTotal-1):(rowsShown-1)
+                if (rows.parent().parent().hasClass("data")) {
+                    const fch = rows.slice(0, rowsShown)[i].children
+                    $(fch[0]).addClass("td-lr-f");
+                    $(fch[fch.length-1]).addClass("td-lr-l");
+                }
                 $('#' + divid + ' .tnav a:first').addClass('active');
                 $('#' + divid + ' .tnav a').bind('click', function(){
 
@@ -39,7 +42,13 @@
                     let currPage = $(this).attr('rel');
                     let startItem = currPage * rowsShown;
                     let endItem = startItem + rowsShown;
-                    $(rows).addClass("n").slice(startItem, endItem).removeClass("n");
+                    const k = $(rows).css('opacity','0.0').hide().slice(startItem, endItem).css('display','table-row').animate({opacity:1}, 300);
+                    if (rows.parent().parent().hasClass("data")) {
+                        const ch = $(k).last().children()
+                        $(ch[0]).addClass("td-lr-f")
+                        $(ch[ch.length - 1]).addClass("td-lr-l")
+                    }
+
                 });
             }
             $(document).ready(function() {
@@ -100,11 +109,11 @@
                             <td class="b-1-do w-10" th:text="${usr.getId()}"></td>
                             <td class="b-1-do w-15" th:text="${usr.getName()}"></td>
                             <td class="b-1-do w-15" th:text="${usr.getEmail()}"></td>
-                            <td class="b-1-do w-50" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
+                            <td class="b-1-do w-50 tc" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                                            and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}">
                                 <div class="g-6">
-                                    <label>
-                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:each="prv: ${roles}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                    <label th:each="prv: ${roles}">
+                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:checked="${usr.getPrivileges().contains(prv)}">
                                     </label>
                                 </div>
                             </td>
@@ -115,27 +124,27 @@
                             <td class="b-1-do w-50 tc" th:if="${!(usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                             and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s')))}">
                                 <div class="g-6">
-                                    <label>
-                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:each="prv: ${roles}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                    <label th:each="prv: ${roles}">
+                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:checked="${usr.getPrivileges().contains(prv)}">
                                     </label>
                                 </div>
                             </td>
                             <td class="b-1-do w-10">
                                 <div class="w-100 f jce">
-                                   <button class="text-on-dark-main w-25" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
+                                   <button title="Reset password" class="text-on-dark-main w-25" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                                            and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-user-lock"></i></button>
-                                   <button class="text-on-dark-main w-25" th:unless="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
+                                   <button title="Reset password" class="text-on-dark-main w-25" th:unless="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                                            and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-user-lock"></i></button>
-                                   <button class="text-on-dark-main w-25" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
+                                   <button title="Delete user" class="text-on-dark-main w-25" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                                            and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-trash"></i></button>
-                                   <button class="text-on-dark-main w-25" th:unless="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
+                                   <button title="Delete user" class="text-on-dark-main w-25" th:unless="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
                                            and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-trash"></i></button>
                                </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="tnav"></div>
+                <div class="tnav text-on-dark-main"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="categories-control">
                 <table class="data text-on-light-main b-1-do" data-rs="10">
@@ -157,14 +166,14 @@
                                 <td class="b-1-do w-40"><th:block th:each="pic: ${cps.value}"><a th:text="${pic}" th:href="@{/cn/i/edit?pic-id={pic-id}(pic-id=${pic})}"></a> </th:block></td>
                                 <td class="b-1-do w-10">
                                     <div class="w-100 f jce">
-                                        <button class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/delete-category?cat-id=' + ${cps.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
+                                        <button title="Delete category" class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/delete-category?cat-id=' + ${cps.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
                                     </div>
                                 </td>
                             </tr>
                         </th:block>
                     </tbody>
                 </table>
-                <div class="tnav"></div>
+                <div class="tnav text-on-dark-main"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="pictures-control">
                 <table class="data text-on-light-main b-1-do" data-rs="10">
@@ -187,15 +196,15 @@
                                 <td class="b-1-do w-15"><th:block th:each="cat: ${pc.value}"><a th:text="${cat}" th:href="@{/cn/c/edit?cat-id={cat-id}(cat-id=${cat})}"></a> </th:block></td>
                                 <td class="b-1-do w-10">
                                     <div class="w-100 f jce">
-                                        <button class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/protect-picture?pic-id=' + ${pc.key.getId()} + '`'"><i th:classappend="${pc.key.isProtection() ? 'fa-unlock':'fa-lock'}" class="fa"></i></button>
-                                        <button class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/delete-picture?pic-id=' + ${pc.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
+                                        <button title="Protect picture" class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/protect-picture?pic-id=' + ${pc.key.getId()} + '`'"><i th:classappend="${pc.key.isProtection() ? 'fa-unlock':'fa-lock'}" class="fa"></i></button>
+                                        <button title="Delete picture" class="text-on-dark-main w-25" th:onclick="'window.location.href=`/cn/admin/delete-picture?pic-id=' + ${pc.key.getId()} + '`'"><i class="fa fa-trash"></i></button>
                                     </div>
                                 </td>
                             </tr>
                         </th:block>
                     </tbody>
                 </table>
-                <div class="tnav"></div>
+                <div class="tnav text-on-dark-main"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="logs-control">
                 <table class="w-100 logs" data-rs="20">
@@ -220,7 +229,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="tnav"></div>
+                <div class="tnav text-on-dark-main"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="settings-control">
                 <table class="w-100 logs" data-rs="20">
@@ -237,7 +246,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="tnav"></div>
+                <div class="tnav text-on-dark-main"></div>
             </div>
         </main>
         <div th:replace="~{fragments/footer :: footer}"></div>

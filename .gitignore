@@ -4,6 +4,9 @@ target/
 !**/src/test/**/target/
 !**/src/main/resources/application.properties
 
+### Docker ###
+docker-app
+
 ### Other ###
 *.txt
 mvnw

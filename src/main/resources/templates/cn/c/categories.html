@@ -15,7 +15,7 @@
 
         <script>
             $(document).ready(function(){
-                const rows = $('#data tbody tr')
+                const rows = $('.data tbody tr')
                 const rowsShown = 5;
                 const rowsTotal = rows.length;
                 const numPages = rowsTotal / rowsShown;
@@ -56,7 +56,7 @@
             <div class="p-2 mt-5 w-100">
                 <div class="w-100 tc"><p>Categories</p></div>
                 <div class="w-100 ffc mt-2">
-                    <table id="data" class="text-on-light-main b-1-do">
+                    <table class="data text-on-light-main b-1-do">
                         <thead>
                             <tr>
                                 <th class="th-fr-f b-1-do">&num;</th>
