@@ -29,7 +29,7 @@
                 rows.hide()
                 rows.slice(0, rowsShown).show()
                 let i = (rowsShown>rowsTotal)?(rowsTotal-1):(rowsShown-1)
-                if (rows.parent().parent().hasClass("data")) {
+                if (rows.parent().parent().hasClass("data") && !rows.parent().parent().hasClass("logs")) {
                     const fch = rows.slice(0, rowsShown)[i].children
                     $(fch[0]).addClass("td-lr-f");
                     $(fch[fch.length-1]).addClass("td-lr-l");
@@ -43,7 +43,7 @@
                     let startItem = currPage * rowsShown;
                     let endItem = startItem + rowsShown;
                     const k = $(rows).css('opacity','0.0').hide().slice(startItem, endItem).css('display','table-row').animate({opacity:1}, 300);
-                    if (rows.parent().parent().hasClass("data")) {
+                    if (rows.parent().parent().hasClass("data") && !rows.parent().parent().hasClass("logs")) {
                         const ch = $(k).last().children()
                         $(ch[0]).addClass("td-lr-f")
                         $(ch[ch.length - 1]).addClass("td-lr-l")
@@ -85,9 +85,9 @@
                 <table class="data text-on-light-main b-1-do" data-rs="10">
                     <thead>
                         <tr>
-                            <th class="th-fr-f b-1-do">&num;</th>
-                            <th class="b-1-do">Name</th>
-                            <th class="b-1-do">Email</th>
+                            <th data-head="0" class="th-fr-f b-1-do">&num;</th>
+                            <th data-head="1" class="b-1-do">Name</th>
+                            <th data-head="2" class="b-1-do">Email</th>
                             <th class="b-1-do">
                                 Permissions
                                 <div class="g-6 mt-1" style="gap: 0">
@@ -144,16 +144,16 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="tnav text-on-dark-main"></div>
+                <div class="tnav text-on-dark-main w-75"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="categories-control">
                 <table class="data text-on-light-main b-1-do" data-rs="10">
                     <thead>
                         <tr>
-                            <th class="th-fr-f b-1-do w-5">&num;</th>
-                            <th class="b-1-do w-20">Name</th>
-                            <th class="b-1-do w-25">Description</th>
-                            <th class="b-1-do w-40">Pictures assigned</th>
+                            <th data-head="0" class="th-fr-f b-1-do w-5">&num;</th>
+                            <th data-head="1" class="b-1-do w-20">Name</th>
+                            <th data-head="2" class="b-1-do w-25">Description</th>
+                            <th data-head="3" class="b-1-do w-40">Pictures assigned</th>
                             <th class="th-fr-l b-1-do w-10">Actions</th>
                         </tr>
                     </thead>
@@ -179,10 +179,10 @@
                 <table class="data text-on-light-main b-1-do" data-rs="10">
                     <thead>
                         <tr>
-                            <th class="th-fr-f b-1-do w-5">&num;</th>
-                            <th class="b-1-do w-50">Filename</th>
-                            <th class="b-1-do w-15">Date added</th>
-                            <th class="b-1-do w-20">Categories</th>
+                            <th data-head="0" class="th-fr-f b-1-do w-5">&num;</th>
+                            <th data-head="1" class="b-1-do w-50">Filename</th>
+                            <th data-head="2" class="b-1-do w-15">Date added</th>
+                            <th data-head="3" class="b-1-do w-20">Categories</th>
                             <th class="th-fr-l b-1-do w-5">Actions</th>
 
                         </tr>
@@ -207,15 +207,15 @@
                 <div class="tnav text-on-dark-main"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="logs-control">
-                <table class="w-100 logs" data-rs="20">
+                <table class="w-100 data logs" data-rs="20">
                     <thead>
                         <tr>
-                            <th class="w-5">&num;</th>
-                            <th class="w-15">Date</th>
-                            <th class="w-15">Page</th>
-                            <th class="w-15">Class</th>
-                            <th class="w-25">User</th>
-                            <th class="w-25">Description</th>
+                            <th data-head="0" class="w-5">&num;</th>
+                            <th data-head="1" class="w-15">Date</th>
+                            <th data-head="2" class="w-15">Page</th>
+                            <th data-head="3" class="w-15">Class</th>
+                            <th data-head="4" class="w-25">User</th>
+                            <th data-head="5" class="w-25">Description</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -232,11 +232,11 @@
                 <div class="tnav text-on-dark-main"></div>
             </div>
             <div sec:authorize="hasAuthority('o')" class="ffc bg-light-main text-on-light-main n p-2 w-85 ml-a" id="settings-control">
-                <table class="w-100 logs" data-rs="20">
+                <table class="w-100 data logs" data-rs="20">
                     <thead>
                         <tr>
-                            <th class="w-50">Key</th>
-                            <th class="w-50">Value</th>
+                            <th data-head="0" class="w-50">Key</th>
+                            <th data-head="1" class="w-50">Value</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -251,4 +251,70 @@
         </main>
         <div th:replace="~{fragments/footer :: footer}"></div>
     </body>
+    <script>
+        $(document).ready(function () {
+
+            $("table.data[data-rs]").each(function () {
+
+                const table = $(this);
+                let sortState = {};
+
+                table.find("thead th[data-head]").each(function () {
+
+                    const th = $(this);
+                    const colIndex = th.attr("data-head");
+
+                    if (colIndex === "") return;
+
+                    th.css("cursor", "pointer");
+
+                    th.on("click", function () {
+
+                        /* detect current page */
+                        const control = table.closest("[id$='-control']");
+                        const activePage = control.find(".tnav a.active").attr("rel") || 0;
+
+                        const tbody = table.find("tbody");
+                        const rows = tbody.find("tr").get();
+
+                        const asc = !sortState[colIndex];
+                        sortState = {};
+                        sortState[colIndex] = asc;
+
+                        rows.sort(function (a, b) {
+
+
+                            let A = $(a).children("td").eq(colIndex).text().trim();
+                            let B = $(b).children("td").eq(colIndex).text().trim();
+
+                            const isNumber = /^[0-9]+(\.[0-9]+)?$/;
+
+                            if (isNumber.test(A) && isNumber.test(B)) {
+                                return asc ? Number(A) - Number(B) : Number(B) - Number(A);
+                            }
+
+                            return asc
+                                    ? A.localeCompare(B)
+                                    : B.localeCompare(A);
+
+                        });
+
+                        $.each(rows, function (_, row) {
+                            tbody.append(row);
+                        });
+
+                        /* rebuild pagination */
+                        tablepanes();
+
+                        /* return to the same page */
+                        control.find('.tnav a[rel="' + activePage + '"]').click();
+
+                    });
+
+                });
+
+            });
+
+        });
+    </script>
 </html>

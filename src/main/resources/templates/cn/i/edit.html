@@ -214,12 +214,12 @@
         <main>
             <div class="p-2 w-100">
                 <div class="w-100 ffr">
-                    <div class="w-50">
+                    <div class="w-50 pfxd p-s-2" style="height: 75vh">
                         <a th:href="|/images/${pic.getPath()}.${pic.getExt()}|">
                             <img data-fancybox="" style="height: 100%;" th:src="|/images/${pic.getPath()}.${pic.getExt()}|" th:alt="${pic.getId()}" class="w-100 result-picture">
                         </a>
                     </div>
-                    <div class="w-50 ffc p-s-2">
+                    <div class="w-50 ffc p-s-2 ml-a">
                         <div class="w-100 tc"><p>PicMan image data</p></div>
                         <div class="w-100 ffr mt-5">
                             <div class="w-50 text-on-light-main data">

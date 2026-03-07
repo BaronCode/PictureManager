@@ -419,10 +419,10 @@ table.data {
     padding: 1%;
     overflow: clip;
 }
-.data th {
+.data:not(.logs) th {
     background-color: var(--dark-main-alpha);
 }
-.data td:first-child, th:first-child {
+.data:not(.logs) td:first-child, th:first-child {
     text-align: center;
 }
 .data td:last-child {
@@ -506,23 +506,23 @@ a.table-pg-s.active {
     background-color: var(--light-main);
     color: var(--text-on-light-main);
 }
-.logs {
+.data.logs {
     font-family: monospace;
     border-spacing: 0;
 }
-.logs thead {
+.data.logs thead {
     background-color: darkgrey;
     color: black;
 }
-.logs tr:nth-child(even) {
+.data.logs tr:nth-child(even) {
     background-color: lightgrey
 }
-.logs tr:nth-child(odd):not(thead > tr) {
+.data.logs tr:nth-child(odd):not(thead > tr) {
     background-color: white;
 }
-.logs tr:nth-child(odd) td {
+.data.logs tr:nth-child(odd) td {
     border: 1px solid lightgrey;
 }
-.logs td {
+.data.logs td {
     padding: .5%;
 }
