@@ -7,7 +7,7 @@ public interface UserService {
     User findByName(String name);
     User findByEmail(String email);
     List<User> findAll();
-    void save(User category);
+    User save(User category);
     void deleteById(Long id);
     void deleteByName(String name);
     void editPrivileges(User u, char privilege, boolean value);

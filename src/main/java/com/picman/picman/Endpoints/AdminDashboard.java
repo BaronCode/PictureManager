@@ -8,11 +8,11 @@ import com.picman.picman.LoggingMgmt.Log;
 import com.picman.picman.LoggingMgmt.LogServiceImplementation;
 import com.picman.picman.PicturesMgmt.Picture;
 import com.picman.picman.PicturesMgmt.PictureServiceImplementation;
-import com.picman.picman.SpringAuthentication.JwtService;
 import com.picman.picman.SpringSettings.Settings;
 import com.picman.picman.SpringSettings.SettingsService;
 import com.picman.picman.UserMgmt.User;
 import com.picman.picman.UserMgmt.UserServiceImplementation;
+import com.picman.picman.Utilities.Utilities;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,13 +26,11 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("cn/admin/")
 public class AdminDashboard {
 
-    private final JwtService jwtService;
     private final UserServiceImplementation userService;
     private final PasswordEncoder passwordEncoder;
     private final LogServiceImplementation logService;
@@ -41,15 +39,14 @@ public class AdminDashboard {
     private final SettingsService settingsService;
     private final CategoryServiceImplementation categoryService;
 
-    public AdminDashboard(JwtService jwtService, UserServiceImplementation userServiceImplementation, PasswordEncoder passwordEncoder, LogServiceImplementation logServiceImplementation, PictureServiceImplementation pictureServiceImplementation, AssignationServiceImplementation assignationServiceImplementation, SettingsService settingsService, CategoryServiceImplementation categoryServiceImplementation) {
-        this.jwtService = jwtService;
-        this.userService = userServiceImplementation;
-        this.passwordEncoder = passwordEncoder;
-        this.logService = logServiceImplementation;
-        this.pictureService = pictureServiceImplementation;
-        this.assignationService = assignationServiceImplementation;
-        this.settingsService = settingsService;
-        this.categoryService = categoryServiceImplementation;
+    public AdminDashboard(UserServiceImplementation usi, PasswordEncoder pe, LogServiceImplementation lsi, PictureServiceImplementation psi, AssignationServiceImplementation asi, SettingsService ss, CategoryServiceImplementation csi) {
+        this.userService = usi;
+        this.passwordEncoder = pe;
+        this.logService = lsi;
+        this.pictureService = psi;
+        this.assignationService = asi;
+        this.settingsService = ss;
+        this.categoryService = csi;
     }
 
     @GetMapping("/")
@@ -58,12 +55,10 @@ public class AdminDashboard {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(
-            @CookieValue(name = "jwt") String jwt,
-            Model model)
-    {
-        String email = jwtService.extractUserMail(jwt);
-        User u = userService.findByEmail(email);
+    public String dashboard(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User main = userService.findByEmail(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername());
+
         LinkedHashMap<Picture, List<Integer>> pcbind = new LinkedHashMap<>();
         LinkedHashMap<Category, List<Long>> cpsbind = new LinkedHashMap<>();
         LinkedHashMap<String, String> settings = new LinkedHashMap<>();
@@ -86,12 +81,12 @@ public class AdminDashboard {
             settings.put(key, settingsService.get(key));
         }
 
-        model.addAttribute("current", u);
+        model.addAttribute("current", main);
         model.addAttribute("users", userService.findAll());
         model.addAttribute("pictures", pictureService.findAll());
         model.addAttribute("cpsbind", cpsbind);
         model.addAttribute("pcbind", pcbind);
-        model.addAttribute("roles", List.of('o', 'u', 's', 'w', 'd', 'r'));
+        model.addAttribute("roles", Utilities.Constants.privileges);
         model.addAttribute("logs", logService.findAll());
         model.addAttribute("settings", settings);
         model.addAttribute("path", "/ admin dashboard");
@@ -99,103 +94,125 @@ public class AdminDashboard {
     }
 
     @PostMapping("/create-user")
-    public String createUser(
-            @RequestParam("name") String name,
-            @RequestParam("email") String email,
-            @RequestParam("organization") String organization
-    ) {
-        User u = new User();
-        u.setName(name);
-        u.setEmail(email);
-        u.setOrganization(organization);
-        u.setPrivileges(Set.of('r'));
-        u.setPassword("TEMPPSW_" + passwordEncoder.encode(String.valueOf(new SecureRandom().nextInt())));
+    public String createUser(@RequestParam("name") String name,@RequestParam("email") String email,@RequestParam("organization") String organization) throws InvalidFormParamException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User main = userService.findByEmail(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername());
 
-        userService.save(u);
+        // Testing whether parameters are valid
+        String tname = Utilities.testUsername(name);
+        String temail = Utilities.testEmail(email);
+        String torganization = Utilities.testOrganization(organization);
+
+        // Creating new user with autogenerated cryptographically secure password
+        User u = new User(
+                tname,
+                temail,
+                "TEMPPSW_" + passwordEncoder.encode(String.valueOf(new SecureRandom().nextInt())),
+                Set.of('r'),
+                torganization
+        );
+        User saved = userService.save(u);
+
+        // Logging
+        Log l = new Log(
+                LocalDateTime.now(),
+                "/cn/admin/create-user",
+                "AdminDashboard",
+                main,
+                "User " + main.getId() + " created user " + saved.getId()
+        );
+        logService.save(l);
+
         return "redirect:/cn/admin/dashboard";
     }
 
-    @PostMapping("/edit-privileges")
     @ResponseBody
-    public void editPrivileges(
-            @RequestParam("user") String id,
-            @RequestParam("role") String role,
-            @RequestParam("nowchecked") String assign
-    ) throws InvalidFormParamException {
+    @PostMapping("/edit-privileges")
+    public void editUserPrivileges(@RequestParam("user") String id, @RequestParam("role") String role, @RequestParam("nowchecked") String assign) throws InvalidFormParamException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User main = userService.findByName(auth.getName());
+        User main = userService.findByEmail(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername());
 
-        long uid; char urole; boolean uassign;
+        // Testing whether parameters are valid
+        long uid = Utilities.testUserID(id);
+        char urole = Utilities.testPrivilege(role);
+        boolean uassign = Utilities.testGenericBoolean(assign);
 
-        try {
-            uid = Integer.parseInt(id);
-        } catch (NumberFormatException nfe) {
-            throw new InvalidFormParamException(AdminDashboard.class, "Invalid user id");
-        }
-
-        if (role == null || role.isBlank() || role.length()>1) {
-            throw new InvalidFormParamException(AdminDashboard.class, "Invalid role");
-        }
-        urole = role.toCharArray()[0];
-        if (!List.of('o', 'u', 's', 'w', 'd', 'r').contains(urole)) {
-            throw new InvalidFormParamException(AdminDashboard.class, "Invalid role");
-        }
-
-        if (assign == null || (!assign.equalsIgnoreCase("true") && !assign.equalsIgnoreCase("false"))) {
-            throw new InvalidFormParamException(AdminDashboard.class, "Invalid assignment param");
-        }
-        uassign = Boolean.parseBoolean(assign);
-
+        // Finding user in the repo and editing privileges
         User u = userService.findById(uid);
         if (u == null) throw new EntityNotFoundException(AdminDashboard.class, "User " + uid + " not found");
         userService.editPrivileges(u, urole, uassign);
+
+        // Logging
         Log l = new Log(
                 LocalDateTime.now(),
                 "/cn/admin/edit-privileges",
                 "AdminDashboard",
                 main,
-                (uassign?"Added " : "Removed ") + "privilege " + urole + (uassign?" to " : " from ") + " user " + uid
+                "User " + main.getId() + (uassign?" added " : " removed ") + "privilege " + urole + (uassign?" to " : " from ") + " user " + uid
 
         );
         logService.save(l);
     }
 
     @GetMapping("/delete-user")
-    public String delete(
-            @RequestParam("id") long id
-    ) {
-        User u = userService.findById(id);
+    public String deleteUser(@RequestParam("id") long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User main = userService.findByEmail(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername());
 
+        // Finding user in the repo
+        User u = userService.findById(id);
         if (u == null) throw new EntityNotFoundException(AdminDashboard.class, "Could not find user with id " + id);
 
+        // Check if trying to delete superadmin
         if (Settings.get("super_admin_id").equals(String.valueOf(id))) {
             throw new AccessDeniedException("Cannot delete superadmin user via application, database usage needed.");
         }
         userService.deleteById(id);
+
+        // Logging
+        Log l = new Log(
+                LocalDateTime.now(),
+                "/cn/admin/delete-user",
+                "AdminDashboard",
+                main,
+                "User " + main.getId() + " deleted user " + u.getId()
+        );
+        logService.save(l);
+
         return "cn/admin/dashboard";
     }
 
     @GetMapping("/reset-psw")
-    public String resetpsw(
-            @RequestParam("id") long id
-    ) {
-        User u = userService.findById(id);
+    public String resetUserPsw(@RequestParam("id") long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User main = userService.findByEmail(((org.springframework.security.core.userdetails.User) auth.getPrincipal()).getUsername());
 
+        // Finding user in the repo
+        User u = userService.findById(id);
         if (u == null) throw new EntityNotFoundException(AdminDashboard.class, "Could not find user with id " + id);
 
+        // Check if trying to reset superadmin password
         if (Settings.get("super_admin_id").equals(String.valueOf(id))) {
             throw new AccessDeniedException("Cannot reset superadmin password, database usage needed.");
         }
-
         u.setPassword("TEMPPSW_" + passwordEncoder.encode(String.valueOf(new SecureRandom().nextInt())));
         userService.save(u);
+
+        // Logging
+        Log l = new Log(
+                LocalDateTime.now(),
+                "/cn/admin/reset-psw",
+                "AdminDashboard",
+                main,
+                "User " + main.getId() + " resetted password of user " + u.getId()
+        );
+        logService.save(l);
+
         return "redirect:/cn/admin/dashboard";
     }
 
     @GetMapping("/protect-picture")
-    public String protect(
-            @RequestParam("pic-id") int id
-    ) {
+    public String protectPicture(@RequestParam("pic-id") int id) {
         Picture p = pictureService.getById(id);
         if (p == null) {
             throw new ImageProcessingException("An error happened while processing the image");

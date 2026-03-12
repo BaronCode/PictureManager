@@ -6,7 +6,6 @@ import com.picman.picman.SpringAuthentication.JwtAuthFilter;
 import com.picman.picman.SpringAuthentication.UserDetailsService;
 import com.picman.picman.UserMgmt.User;
 import com.picman.picman.UserMgmt.UserServiceImplementation;
-import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -80,10 +79,17 @@ public class SecurityConfig {
                         .requestMatchers( "/cn/c/delete").hasAnyAuthority("o", "s", "d")
 
                         // Admin
-                        .requestMatchers("/cn/admin/**").hasAnyAuthority("o", "u")
+                        .requestMatchers("/cn/admin/dashboard").hasAnyAuthority("o", "u")
+                        .requestMatchers("/cn/admin/create-user", "/cn/admin/delete-user", "/cn/admin/reset-psw", "/cn/admin/edit-privileges").hasAnyAuthority("o", "u")
 
                         // Any
-                        .requestMatchers("/h2-console", "/h2-console/**").hasAnyAuthority("o")
+                        .requestMatchers("/h2-console", "/h2-console/**").access(
+                                (authentication, object) ->
+                                        (authentication.get().getAuthorities().stream().anyMatch(a -> a.getAuthority().contains("o")) &&
+                                        authentication.get().getAuthorities().stream().anyMatch(a -> a.getAuthority().contains("s"))) ?
+                                                new org.springframework.security.authorization.AuthorizationDecision(true) :
+                                                new org.springframework.security.authorization.AuthorizationDecision(false)
+                                        )
 
                         // Deny any other request
                         .anyRequest().denyAll()

@@ -31,6 +31,14 @@ public class User {
         [s] - support
     */
 
+    public User(String name, String email, String password, Set<Character> privileges, String organization) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.privileges = privileges;
+        this.organization = organization;
+    }
+
     @PrePersist
     public void prePersist() {
         if (name == null || name.isEmpty() || (name.equals("admin") && !email.equals("admin@picman.it")))  {

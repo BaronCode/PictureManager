@@ -62,7 +62,7 @@ public class Categories {
     ) throws InvalidFormParamException {
         //Permissions are already checked in SecurityConfig, so no need for jwt token
         if (name == null || name.isBlank()) {
-            throw new InvalidFormParamException(Categories.class, "Cannot assign null or blank name to category");
+            throw new InvalidFormParamException("Cannot assign null or blank name to category");
         }
 
         Category c = new Category();
@@ -79,7 +79,7 @@ public class Categories {
             @RequestParam("cat-id") @Valid Integer id
     ) throws InvalidFormParamException {
         //Permissions are already checked in SecurityConfig, so no need for jwt token
-        if (id == null) throw new InvalidFormParamException(Categories.class, "Category id cannot be null");
+        if (id == null) throw new InvalidFormParamException("Category id cannot be null");
 
         categoryService.deleteById(id);
         return "redirect:categories";
@@ -91,7 +91,7 @@ public class Categories {
             Model model
     ) throws InvalidFormParamException {
         //Permissions are already checked in SecurityConfig, so no need for jwt token
-        if (id == null) throw new InvalidFormParamException(Categories.class, "Category id cannot be null");
+        if (id == null) throw new InvalidFormParamException("Category id cannot be null");
 
         Category c = categoryService.findById(id);
 
@@ -109,7 +109,7 @@ public class Categories {
             @RequestParam("description") @Valid String description
     ) throws InvalidFormParamException {
         //Permissions are already checked in SecurityConfig, so no need for jwt token
-        if (id == null) throw new InvalidFormParamException(Categories.class, "Category id cannot be null");
+        if (id == null) throw new InvalidFormParamException("Category id cannot be null");
 
         Category old = categoryService.findById(id);
         Category n = new Category();

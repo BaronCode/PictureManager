@@ -38,7 +38,6 @@ public class CentralizedHttpStatusHandler {
     @ExceptionHandler(InvalidFormParamException.class)
     public String _422Handler(InvalidFormParamException ex, Model model) {
         model.addAttribute("path", "/ invalid form");
-        model.addAttribute("class", ex.getOriginClass());
         model.addAttribute("error", ex.getMessage());
         return "error";
     }
