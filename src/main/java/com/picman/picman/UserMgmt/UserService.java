@@ -10,5 +10,5 @@ public interface UserService {
     void save(User category);
     void deleteById(Long id);
     void deleteByName(String name);
-    void editPrivileges(long current, long subject, char privilege, boolean value);
+    void editPrivileges(User u, char privilege, boolean value);
 }

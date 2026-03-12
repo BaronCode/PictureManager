@@ -44,9 +44,8 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public void editPrivileges(long current, long subject ,char privilege, boolean value) {
-        if (userRepo.getReferenceById(current).getPrivileges().contains('a')) {
-            userRepo.getReferenceById(subject).editPrivileges(privilege, value);
-        }
+    public void editPrivileges(User u, char privilege, boolean value) {
+        u.editPrivileges(privilege, value);
+        save(u);
     }
 }

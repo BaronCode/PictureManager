@@ -1,7 +1,7 @@
 package com.picman.picman.SpringSettings;
 
 import com.picman.picman.Exceptions.InvalidPicmanSettingException;
-import com.picman.picman.Exceptions.PicmanSettingsNotFoundException;
+import com.picman.picman.Exceptions.InvalidActionException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -20,11 +20,11 @@ public final class PicmanSettings {
     private Set<Integer> technicalUsersIDs;
     private final Logger logger = LoggerFactory.getLogger(PicmanSettings.class);
 
-    public PicmanSettings() {
+    public PicmanSettings() throws Exception {
         parseSettings();
     }
 
-    private void parseSettings() {
+    private void parseSettings() throws Exception {
         try {
             File settings = new File(new File("src/main/java/com/picman/picman/SpringSettings/picmansettings.pman").getAbsolutePath());
             Scanner sc = new Scanner(settings);
@@ -56,7 +56,7 @@ public final class PicmanSettings {
                 }
             }
         } catch (FileNotFoundException fnf) {
-            throw new PicmanSettingsNotFoundException("File picmansettings.pman not found!");
+            throw new Exception("File picmansettings.pman not found!");
         }
     }
 }

@@ -28,7 +28,7 @@
                     $(this).addClass("n")
                 })
 
-                rows.slice(0, rowsShown).removeClass("n");
+                rows.slice(0, rowsShown).removeClass("n").attr("data-fancybox", "gallery");
                 $('#pnav a:first').addClass('active');
                 $('#pnav a').bind('click', function(){
 
@@ -37,7 +37,7 @@
                     let currPage = $(this).attr('rel');
                     let startItem = currPage * rowsShown;
                     let endItem = startItem + rowsShown;
-                    $(rows)/*.css('opacity','0.0')*/.addClass("n").slice(startItem, endItem).removeClass("n")/*.animate({opacity:1}, 300)*/;
+                    $(rows)/*.css('opacity','0.0')*/.addClass("n").slice(startItem, endItem).removeClass("n").attr("data-fancybox", "gallery")/*.animate({opacity:1}, 300)*/;
                 });
             }
 
@@ -268,6 +268,7 @@
                 <div class="ffc w-25">
                     <div class="text-on-light-main p-s-2 w-100 mt-10">
                         <div class="w-100 p-2" id="search">
+                            <label for="categories-input"></label>
                             <input id="categories-input" type="search" class="w-100 p-1" placeholder="Search for a category...">
                             <form id="tagsForm" method="get" class="vhdn">
                                 <input id="hidden-categories-input" name="hidden-tags" th:name="hidden-tags" type="hidden" class="vhdn">

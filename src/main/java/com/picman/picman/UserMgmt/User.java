@@ -42,9 +42,11 @@ public class User {
     }
 
     public void editPrivileges(char privilege, boolean value) {
+        Set<Character> newPrivileges = new HashSet<>(privileges);
         if (value) {
-            privileges.add(privilege);
-        } else privileges.remove(privilege);
+            newPrivileges.add(privilege);
+        } else newPrivileges.remove(privilege);
+        setPrivileges(newPrivileges);
     }
 
     public boolean hasAuthorities(char... authorities) {
@@ -53,8 +55,12 @@ public class User {
         return privileges.containsAll(auth);
     }
 
-    public boolean hasAnyAuthority(char authority) {
-        return true;
+    public boolean hasAuthority(char authority) {
+        return privileges.contains(authority);
+    }
+
+    public boolean hasAnyAuthority(char... authority) {
+        return Collections.disjoint(privileges, Set.of(authority));
     }
 
     @Override

@@ -25,10 +25,10 @@
                         <p>Usa le credenziali fornite per eseguire il login</p>
 
                         <label for="login-email"></label>
-                        <input type="email" name="email" id="login-email" th:name="email" placeholder="jones@organization.org">
+                        <input minlength="8" required autofocus maxlength="255" type="email" name="email" id="login-email" th:name="email" placeholder="jones@organization.org">
                         <div class="p-2"></div>
                         <label for="login-password"></label>
-                        <input type="password" name="password" id="login-password" th:name="password" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;&middot;&middot;">
+                        <input minlength="8" required maxlength="255" type="password" name="password" id="login-password" th:name="password" placeholder="&middot;&middot;&middot;&middot;&middot;&middot;&middot;&middot;">
                         <button type="submit" class="w-100 mt-5">LOGIN</button>
                     </form>
                     <p>Se non hai le credenziali, richiedile <a href="">qui</a></p>

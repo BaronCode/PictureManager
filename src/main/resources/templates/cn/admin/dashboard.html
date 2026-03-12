@@ -25,9 +25,13 @@
                     let pageNum = i + 1;
                     $('#' + divid + ' .tnav').append('<a class="table-pg-s ib b-1-do" href="#" rel="'+i+'">'+pageNum+'</a> ');
                 }
+                $('#' + divid + ' .tnav').append('<a class="table-pg-s ib b-1-do show-all" href="#">A</a>');
 
-                rows.hide()
-                rows.slice(0, rowsShown).show()
+                $.each($(rows), function () {
+                    $(this).addClass("n")
+                })
+
+                rows.slice(0, rowsShown).removeClass("n")
                 let i = (rowsShown>rowsTotal)?(rowsTotal-1):(rowsShown-1)
                 if (rows.parent().parent().hasClass("data") && !rows.parent().parent().hasClass("logs")) {
                     const fch = rows.slice(0, rowsShown)[i].children
@@ -36,19 +40,22 @@
                 }
                 $('#' + divid + ' .tnav a:first').addClass('active');
                 $('#' + divid + ' .tnav a').bind('click', function(){
-
                     $('#' + divid + ' .tnav a').removeClass('active');
                     $(this).addClass('active');
-                    let currPage = $(this).attr('rel');
-                    let startItem = currPage * rowsShown;
-                    let endItem = startItem + rowsShown;
-                    const k = $(rows).css('opacity','0.0').hide().slice(startItem, endItem).css('display','table-row').animate({opacity:1}, 300);
-                    if (rows.parent().parent().hasClass("data") && !rows.parent().parent().hasClass("logs")) {
-                        const ch = $(k).last().children()
-                        $(ch[0]).addClass("td-lr-f")
-                        $(ch[ch.length - 1]).addClass("td-lr-l")
-                    }
 
+                    if ($(this).hasClass("show-all")) {
+                        $(rows).removeClass("n")
+                    } else {
+                        let currPage = $(this).attr('rel');
+                        let startItem = currPage * rowsShown;
+                        let endItem = startItem + rowsShown;
+                        const k = $(rows).addClass("n").slice(startItem, endItem).removeClass("n");
+                        if (rows.parent().parent().hasClass("data") && !rows.parent().parent().hasClass("logs")) {
+                            const ch = $(k).last().children()
+                            $(ch[0]).addClass("td-lr-f")
+                            $(ch[ch.length - 1]).addClass("td-lr-l")
+                        }
+                    }
                 });
             }
             $(document).ready(function() {
@@ -66,9 +73,48 @@
                 tablepanes()
             })
         </script>
+        <script>
+            $(document).ready(function() {
+                const form = $("#create-user");
+                /* SUBMIT */
+                (form).on("submit", e => {
+                    e.preventDefault();
+                    $("#overlay").removeClass("n")
+                    $("#submit-def").on("click", function () {
+                        $(form)[0].submit()
+                    })
+                });
+            })
+        </script>
+        <script>
+            $(document).ready(function() {
+                $(".priv-edit input[type=checkbox]").on("click", function () {
+                    const role = $(this).attr("name")
+                    const user = $(this).attr("data-user")
+                    const add = this.checked
 
+                    let fd = new FormData()
+                    fd.append("user", user)
+                    fd.append("role", role)
+                    fd.append("nowchecked", add)
+
+                    fetch("/cn/admin/edit-privileges", {
+                            method: "POST",
+                            body: fd,
+                            credentials: "same-origin"
+                    })
+                })
+            })
+        </script>
     </head>
     <body>
+        <div class="n pabs w-100 h-100 z-3 f jcc" id="overlay">
+            <div class="w-50 b-1-do b-r-2 bg-light-main prlt p-2 ffc">
+                <p class="mt-2">The user's temp password is automatically generated and will be sent via email to the new user.</p>
+                <p>Manually created users will have only readonly role. You can edit the roles after creation.</p>
+                <button class="w-100 mt-2" id="submit-def">Create user</button>
+            </div>
+        </div>
         <div class="bg-dark-main">
             <div th:replace="~{fragments/header :: header}"></div>
             <div id="hrepdiv" class="bg-transparent"></div>
@@ -82,7 +128,23 @@
                 <p sec:authorize="hasAuthority('o')" class="crs-p" id="settings-menu">Application settings</p>
             </div>
             <div sec:authorize="hasAnyAuthority('o', 'u')" class="ffc bg-light-main text-on-light-main p-2 w-85 ml-a" id="users-control">
-                <table class="data text-on-light-main b-1-do" data-rs="10">
+                <div class="w-100 tc">
+                    <div class="w-100 tc"><p>Create a new user</p></div>
+                    <form th:action="@{/cn/admin/create-user}" id="create-user" method="post" class="w-100 ffc mt-2">
+                        <label>
+                            <input class="w-100 p-1 b-1-do b-r-1 mt-2" name="email" th:name="email" type="email" maxlength="255" required placeholder="User email">
+                        </label>
+                        <label>
+                            <input class="w-100 p-1 b-1-do b-r-1 mt-2" name="name" th:name="name" type="text" maxlength="30" placeholder="User name">
+                        </label>
+                        <label>
+                            <input class="w-100 p-1 b-1-do b-r-1 mt-2" name="organization" th:name="organization" type="text" maxlength="128" placeholder="User organization">
+                        </label>
+
+                        <button type="submit" class="w-100 p-1 mt-2">Create user</button>
+                    </form>
+                </div>
+                <table class="data text-on-light-main b-1-do mt-5" data-rs="10">
                     <thead>
                         <tr>
                             <th data-head="0" class="th-fr-f b-1-do">&num;</th>
@@ -109,36 +171,61 @@
                             <td class="b-1-do w-10" th:text="${usr.getId()}"></td>
                             <td class="b-1-do w-15" th:text="${usr.getName()}"></td>
                             <td class="b-1-do w-15" th:text="${usr.getEmail()}"></td>
-                            <td class="b-1-do w-50 tc" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
-                                           and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}">
-                                <div class="g-6">
+                            <td class="b-1-do w-50 tc" sec:authorize="hasAuthority('s') and hasAuthority('o')">
+                                <div class="g-6 priv-edit">
                                     <label th:each="prv: ${roles}">
-                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                        <input
+                                                type="checkbox"
+                                                th:name="${prv}"
+                                                th:data-user="${usr.getId()}"
+                                                th:id="${prv}"
+                                                th:checked="${usr.getPrivileges().contains(prv)}">
                                     </label>
                                 </div>
                             </td>
-                            <td class="b-1-do w-50 tc" sec:authorize="!(hasAuthority('s') and hasAuthority('o'))" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
-                                           and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}">
+                            <td class="b-1-do w-50 tc" sec:authorize="!hasAuthority('s') and (hasAuthority('o') or hasAuthority('u'))" th:if="${usr.hasAuthorities('o', 's')}">
                                 Roles are hidden, user is superadmin
                             </td>
-                            <td class="b-1-do w-50 tc" th:if="${!(usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
-                            and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s')))}">
-                                <div class="g-6">
+                            <td class="b-1-do w-50 tc" sec:authorize="!hasAuthority('s') and (hasAuthority('o') or hasAuthority('u'))" th:unless="${usr.hasAuthorities('o', 's')}">
+                                <div class="g-6 priv-edit">
                                     <label th:each="prv: ${roles}">
-                                        <input type="checkbox" th:name="${prv}" th:id="${prv}" th:checked="${usr.getPrivileges().contains(prv)}">
+                                        <input
+                                                th:disabled="${current.hasAuthority(prv) or usr.hasAuthority('o') or prv.equals(T(java.lang.Character).valueOf('s')) or prv.equals(T(java.lang.Character).valueOf('o'))}"
+                                                type="checkbox"
+                                                th:name="${prv}"
+                                                th:data-user="${usr.getId()}"    
+                                                th:id="${prv}"
+                                                th:checked="${usr.getPrivileges().contains(prv)}">
                                     </label>
                                 </div>
                             </td>
                             <td class="b-1-do w-10">
                                 <div class="w-100 f jce">
-                                   <button title="Reset password" class="text-on-dark-main w-25" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
-                                           and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-user-lock"></i></button>
-                                   <button title="Reset password" class="text-on-dark-main w-25" th:unless="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
-                                           and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-user-lock"></i></button>
-                                   <button title="Delete user" class="text-on-dark-main w-25" sec:authorize="hasAuthority('s') and hasAuthority('o')" th:if="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
-                                           and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-trash"></i></button>
-                                   <button title="Delete user" class="text-on-dark-main w-25" th:unless="${usr.getPrivileges().contains(T(java.lang.Character).valueOf('o'))
-                                           and usr.getPrivileges().contains(T(java.lang.Character).valueOf('s'))}"><i class="fa fa-trash"></i></button>
+                                    <button title="Reset password" class="text-on-dark-main w-25"
+                                            sec:authorize="hasAuthority('s') and hasAuthority('o')"
+                                            th:onclick="'window.location.href=`/cn/admin/reset-psw?id=' + ${usr.getId()} + '`'"
+                                    ><i class="fa fa-user-lock"></i></button>
+                                    <button title="Reset password" class="text-on-dark-main w-25"
+                                            sec:authorize="!hasAuthority('s') and (hasAuthority('o') or hasAuthority('u'))"
+                                            th:if="${
+                                            !(usr.hasAuthority('o') or usr.hasAuthority('s')) and
+                                            !(usr.hasAuthority('u') and (current.hasAuthority('u') and !current.hasAuthority('o')))
+                                            }"
+                                            th:onclick="'window.location.href=`/cn/admin/reset-psw?id=' + ${usr.getId()} + '`'"
+                                    ><i class="fa fa-user-lock"></i></button>
+
+                                    <button title="Delete user" class="text-on-dark-main w-25"
+                                            sec:authorize="hasAuthority('s') and hasAuthority('o')"
+                                            th:onclick="'window.location.href=`/cn/admin/delete-user?id=' + ${usr.getId()} + '`'"
+                                    ><i class="fa fa-trash"></i></button>
+                                    <button title="Delete user" class="text-on-dark-main w-25"
+                                            sec:authorize="!hasAuthority('s') and (hasAuthority('o') or hasAuthority('u'))"
+                                            th:if="${
+                                            !(usr.hasAuthority('o') or usr.hasAuthority('s')) and
+                                            !(usr.hasAuthority('u') and (current.hasAuthority('u') and !current.hasAuthority('o')))
+                                            }"
+                                            th:onclick="'window.location.href=`/cn/admin/delete-user?id=' + ${usr.getId()} + '`'"
+                                    ><i class="fa fa-trash"></i></button>
                                </div>
                             </td>
                         </tr>
